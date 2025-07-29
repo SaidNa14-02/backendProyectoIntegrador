@@ -1,26 +1,14 @@
-import pool from './src/db.js';
 import express from 'express';
+import rutaRoutes from './routes/rutaRoutes.js'
 const app = express();
 const port = 3000;
 
-async function obtenerRutas() {
-    try {
-        const res = await pool.query ('SELECT * FROM ruta');
-        console.log('Resultados de la consulta', res.rows);
-        return res.rows;
-    }
-    catch{
-        console.error('Error ejecutando la consulta', err.stack);
-        throw err
-    }
-}
-app.get('/', (req, res) => {
-    res.send('App de express iniciada')
+// Middleware para parsear JSON
+app.use(express.json());
+
+// Rutas
+app.use('/api/rutas', rutaRoutes);
+
+app.listen(port, () => {
+    console.log(`Servidor escuchando en puerto ${port}`);
 });
-
-app.listen(port, () =>{
-    console.log('Servidor escuchando en puerto 3000')
-    
-})
-
-obtenerRutas()
