@@ -1,23 +1,29 @@
 import pool from "../src/db.js";
+import bcrypt from "bcryptjs";
+
 
 class Usuario {
   async create(nuevoUsuario) {
     try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(nuevoUsuario.password, salt);
+
       const query = {
-        text: `INSERT INTO usuario (nombre, apellido, correo, cedula) VALUES 
-                ($1, $2, $3, $4)`,
+        text: `INSERT INTO usuario (nombre, apellido, correo, cedula, password_hash) VALUES 
+                ($1, $2, $3, $4, $5) RETURNING id, nombre, apellido, correo, cedula`,
 
         values: [
           nuevoUsuario.nombre,
           nuevoUsuario.apellido,
           nuevoUsuario.correo,
           nuevoUsuario.cedula,
+          hashedPassword,
         ],
       };
       const result = await pool.query(query);
       return result.rows[0];
     } catch (error) {
-      console.error("Error al crear ruta: ", error);
+      console.error("Error al crear usuario: ", error);
       throw error;
     }
   }
@@ -80,6 +86,31 @@ class Usuario {
     }
   }
 
+  async checkCredential(email, password) {
+    try {
+      const query = {
+        text: `SELECT * FROM usuario WHERE correo = $1`,
+        values: [email],
+      };
+      const result = await pool.query(query);
+      if (result.rows.length === 0) {
+        return null;
+      }
+      const usuario = result.rows[0];
+      const passwordMatch = await bcrypt.compare(
+        password,
+        usuario.password_hash
+      );
+      if (!passwordMatch) {
+        return null;
+      }
+      delete usuario.password_hash;
+      return usuario;
+    } catch (error) {
+      console.error("Error al verificar credenciales: ", error);
+      throw error;
+    }
+  }
 }
 
-export default Usuario
+export default Usuario;
