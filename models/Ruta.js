@@ -4,15 +4,16 @@ class Ruta {
     async create(nuevaRuta) {
         try {
             const query = {
-                text: `INSERT INTO ruta (titulo, descripcion, punto_inicio, punto_destino, tipo_transporte) 
-                       VALUES ($1, $2, $3, $4, $5) 
+                text: `INSERT INTO ruta (titulo, descripcion, punto_inicio, punto_destino, tipo_transporte, creador_id) 
+                       VALUES ($1, $2, $3, $4, $5, $6) 
                        RETURNING *`,
                 values: [
                     nuevaRuta.titulo, 
                     nuevaRuta.descripcion, 
                     nuevaRuta.punto_inicio, 
                     nuevaRuta.punto_destino, 
-                    nuevaRuta.tipo_transporte
+                    nuevaRuta.tipo_transporte,
+                    nuevaRuta.creador_id
                 ]
             };
 
