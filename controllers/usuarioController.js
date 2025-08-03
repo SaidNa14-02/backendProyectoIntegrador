@@ -56,8 +56,16 @@ export const getUsuarioById = async (req, res) => {
 
 export const deleteUsuario = async (req, res) => {
   try {
-    const id = req.params.id;
-    const usuarioEliminado = await usuarioModel.deleteById(id);
+    const userIdFromToken = req.user.id;
+    const userIdFromParams = parseInt(req.params.id, 10);
+
+    if (userIdFromToken !== userIdFromParams) {
+      return res.status(403).json({
+        message: "Prohibido: No tienes permiso para eliminar este usuario.",
+      });
+    }
+
+    const usuarioEliminado = await usuarioModel.deleteById(userIdFromParams);
 
     if (!usuarioEliminado) {
       return res.status(404).json({
@@ -79,9 +87,20 @@ export const deleteUsuario = async (req, res) => {
 
 export const updateUsuario = async (req, res) => {
   try {
-    const id = req.params.id;
+    const userIdFromToken = req.user.id;
+    const userIdFromParams = parseInt(req.params.id, 10);
+    if (userIdFromToken !== userIdFromParams) {
+      return res.status(403).json({
+        message: "Prohibido: No tienes permiso para actualizar este usuario.",
+      });
+    }
+
     const body = req.body;
-    const usuarioActualizado = await usuarioModel.updateById(id, body);
+    const usuarioActualizado = await usuarioModel.updateById(
+      userIdFromParams,
+      body
+    );
+
     if (!usuarioActualizado) {
       return res.status(404).json({
         message: "Usuario no encontrado",
@@ -110,18 +129,17 @@ export const loginUsuario = async (req, res) => {
     }
     const payload = {
       id: usuario.id,
-      correo: usuario.correo
-    }
+      correo: usuario.correo,
+    };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: '1d'
+      expiresIn: "1d",
     });
 
     res.status(200).json({
       message: "login exitoso",
       token: token,
     });
-
   } catch (error) {
     res.status(500).json({
       message: "Error al iniciar sesión",
@@ -131,21 +149,30 @@ export const loginUsuario = async (req, res) => {
 };
 
 export const changePassword = async (req, res) => {
-    try {
-        const { id } = req.user;
-        const { newPassword } = req.body;
+  try {
+    const { id } = req.user;
+    const { newPassword } = req.body;
 
-        if (!newPassword || newPassword.length < 6) { 
-            return res.status(400).json({ message: "La nueva contraseña es requerida y debe tener al menos 6 caracteres." });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const newPasswordHash = await bcrypt.hash(newPassword, salt);
-
-        await usuarioModel.updatePasswordById(id, newPasswordHash);
-
-        res.status(200).json({ message: "Contraseña actualizada correctamente." });
-
-    } catch (error) {
-        res.status(500).json({ message: "Error al actualizar la contraseña", error: error.message });
+    if (!newPassword || newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "La nueva contraseña es requerida y debe tener al menos 6 caracteres.",
+        });
     }
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+    await usuarioModel.updatePasswordById(id, newPasswordHash);
+
+    res.status(200).json({ message: "Contraseña actualizada correctamente." });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error al actualizar la contraseña",
+        error: error.message,
+      });
+  }
 };

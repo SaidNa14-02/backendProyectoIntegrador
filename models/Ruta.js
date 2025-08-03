@@ -51,32 +51,40 @@ class Ruta {
         }
     };
 
-    async updateById(id, updatedBody){
-        try {
-            const query = {
-                text: `UPDATE ruta 
-                       SET titulo = $1, descripcion = $2, punto_inicio = $3, 
-                           punto_destino = $4, tipo_transporte = $5 
-                       WHERE id = $6 
-                       RETURNING *`,
-                values: [
-                    updatedBody.titulo, 
-                    updatedBody.descripcion, 
-                    updatedBody.punto_inicio, 
-                    updatedBody.punto_destino, 
-                    updatedBody.tipo_transporte,
-                    id
-                ]
-            };
-            const result = await pool.query(query);
-            return result.rows[0];
-        }
-        catch (error) {
-            console.error('No se ha podido actualizar el elemento', error);
-            throw error;
-        }
-    }
+async updateById(id, updatedBody) {
+    try {
+        // CORRECCIÓN: Lista de campos limpia y completa
+        const updatableFields = ['titulo', 'descripcion', 'punto_inicio', 'punto_destino', 'tipo_transporte'];
+        
+        const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
 
+        if (fieldsToUpdate.length === 0) {
+            return this.findById(id); // Usa el nombre correcto del método de tu clase
+        }
+
+        const setClause = fieldsToUpdate
+            .map((field, index) => `"${field}" = $${index + 1}`)
+            .join(', ');
+
+        const values = fieldsToUpdate.map(field => updatedBody[field]);
+        
+        values.push(id);
+        const idIndex = values.length;
+
+        const query = {
+            text: `UPDATE ruta SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+            values: values
+        };
+        
+        const result = await pool.query(query);
+
+        return result.rows[0];
+
+    } catch (error) {
+        console.error("No se ha podido actualizar el elemento en la tabla ruta", error);
+        throw error;
+    }
+}
     async deleteById(id){
         try {
             const query = {
