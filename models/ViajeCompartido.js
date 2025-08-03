@@ -137,3 +137,5 @@ class ViajeCompartido {
     }
   }
 }
+
+export default ViajeCompartido;
