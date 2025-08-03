@@ -4,7 +4,12 @@ const viajeCompartidoModel = new ViajeCompartido();
 
 export const createViajeCompartido = async (req, res) => {
   try {
-    const newViaje = await viajeCompartidoModel.createViajeCompartido(req.body);
+    const id_conductor = req.user.id;
+    const datosViaje = {
+      ...req.body,
+      conductor_id: id_conductor
+    };
+    const newViaje = await viajeCompartidoModel.createViajeCompartido(datosViaje);
     res.status(201).json({
       message: "Viaje compartido creado con éxito",
       data: newViaje,
@@ -39,7 +44,7 @@ export const getAllViajesCompartidos = async (req, res) => {
 
 export const getViajeCompartidoByUserId = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
     const viajes = await viajeCompartidoModel.getViajeCompartidoByUserId(
       userId
     );
@@ -84,6 +89,19 @@ export const getViajeCompartidoById = async (req, res) => {
 export const deleteViajeCompartido = async (req, res) => {
   try {
     const viajeId = req.params.id;
+    const conductorIdDelToken = req.user.id;
+
+    const viajeExistente = await viajeCompartidoModel.getById(viajeId);
+    if (!viajeExistente) {
+      return res.status(404).json({ message: "Viaje no encontrado" });
+    }
+    if (viajeExistente.id_conductor !== conductorIdDelToken) {
+      return res
+        .status(403)
+        .json({
+          message: "Prohibido: No tienes permiso para eliminar este viaje.",
+        });
+    }
     const viajeEliminado = await viajeCompartidoModel.deleteViajeCompartido(
       viajeId
     );
