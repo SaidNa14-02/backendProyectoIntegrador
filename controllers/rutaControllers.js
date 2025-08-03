@@ -4,7 +4,13 @@ const rutaModel = new Ruta();
 
 export const createRuta = async (req, res) => {
   try {
-    const newRuta = await rutaModel.create(req.body);
+    const creadorId = req.user.id;
+    //Añade el el id a la propiedad creador_id del body
+    const datosRuta = {
+        ...req.body,
+        creador_id: creadorId 
+    };
+    const newRuta = await rutaModel.create(datosRuta);
     res.status(201).json({ 
       message: "Ruta creada exitosamente",
       data: newRuta 

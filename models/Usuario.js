@@ -1,7 +1,6 @@
 import pool from "../src/db.js";
 import bcrypt from "bcryptjs";
 
-
 class Usuario {
   async create(nuevoUsuario) {
     try {
@@ -66,25 +65,56 @@ class Usuario {
     }
   }
 
-  async updateById(id, updatedBody) {
+
+async updateById(id, updatedBody) {
     try {
-      const query = {
-        text: `UPDATE usuario SET nombre = $1, apellido = $2, correo = $3, cedula = $4 WHERE id=$5 RETURNING *`,
-        values: [
-          updatedBody.nombre,
-          updatedBody.apellido,
-          updatedBody.correo,
-          updatedBody.cedula,
-          id,
-        ],
-      };
-      const result = await pool.query(query);
-      return result.rows[0];
+        const updatableFields = ['nombre', 'apellido', 'correo', 'cedula', 'conductor', 'placa', 'capacidadvehiculo'];
+        const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
+
+        if (fieldsToUpdate.length === 0) {
+            return this.getById(id);
+        }
+
+        const setClause = fieldsToUpdate
+            .map((field, index) => `"${field}" = $${index + 1}`)
+            .join(', ');
+
+        const values = fieldsToUpdate.map(field => updatedBody[field]);
+        
+        values.push(id);
+        const idIndex = values.length;
+
+        const query = {
+            text: `UPDATE usuario SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+            values: values
+        };
+        
+        const result = await pool.query(query);
+        if (result.rows[0]) {
+            delete result.rows[0].password_hash;
+        }
+        return result.rows[0];
+
     } catch (error) {
-      console.error("No se ha podido actualizar el elemento", error);
-      throw error;
+        console.error("No se ha podido actualizar el elemento", error);
+        throw error;
     }
-  }
+}
+
+async updatePasswordById(id, newPasswordHash) {
+    try {
+        const query = {
+            text: 'UPDATE usuario SET password_hash = $1 WHERE id = $2 RETURNING id, correo',
+            values: [newPasswordHash, id]
+        };
+        const result = await pool.query(query);
+        return result.rows[0];
+    } catch (error) {
+        console.error("Error al actualizar la contraseña:", error);
+        throw error;
+    }
+}
+
 
   async checkCredential(email, password) {
     try {
