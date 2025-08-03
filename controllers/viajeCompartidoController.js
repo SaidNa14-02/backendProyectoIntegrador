@@ -7,7 +7,7 @@ export const createViajeCompartido = async (req, res) => {
     const id_conductor = req.user.id;
     const datosViaje = {
       ...req.body,
-      conductor_id: id_conductor
+      id_conductor: id_conductor
     };
     const newViaje = await viajeCompartidoModel.createViajeCompartido(datosViaje);
     res.status(201).json({
@@ -25,11 +25,6 @@ export const createViajeCompartido = async (req, res) => {
 export const getAllViajesCompartidos = async (req, res) => {
   try {
     const viajes = await viajeCompartidoModel.getAllViajesCompartidos();
-    if (viajes.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No hay viajes compartidos disponibles" });
-    }
     res.status(200).json({
       message: "Viajes compartidos obtenidos con éxito",
       data: viajes,

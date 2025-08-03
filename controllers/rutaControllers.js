@@ -88,7 +88,9 @@ export const updateRuta = async (req, res) => {
     if (!rutaActualizada) {
       return res.status(404).json({ message: "Ruta no encontrada" });
     }
-    res.status(200).json({ message: "Ruta actualizada correctamente" });
+    res.status(200).json({ message: "Ruta actualizada correctamente",
+        data: rutaActualizada 
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error al actualizar la ruta",
