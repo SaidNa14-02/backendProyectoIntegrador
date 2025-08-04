@@ -1,4 +1,4 @@
-import ViajeCompartido from "../models/viajeCompartidoModel.js";
+import ViajeCompartido from "../models/viajeCompartido.js";
 import jwt from "jsonwebtoken";
 const viajeCompartidoModel = new ViajeCompartido();
 
