@@ -57,6 +57,7 @@ async updateById(id, updatedBody, creadorId) {
         const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
 
         if (fieldsToUpdate.length === 0) {
+            // Si no hay nada que actualizar, no tiene sentido consultar la BD.
             return null; 
         }
 
@@ -64,18 +65,24 @@ async updateById(id, updatedBody, creadorId) {
             .map((field, index) => `"${field}" = ${index + 1}`)
             .join(', ');
 
+        // Prepara los valores para los placeholders
         const values = fieldsToUpdate.map(field => updatedBody[field]);
+        
+        // Añade id y creadorId al final del array de valores para usarlos en el WHERE
         values.push(id);
         const idIndex = values.length;
         values.push(creadorId);
         const creadorIdIndex = values.length;
 
         const query = {
+            // La cláusula WHERE ahora comprueba ambos IDs de forma segura
             text: `UPDATE ruta SET ${setClause} WHERE id = ${idIndex} AND creador_id = ${creadorIdIndex} RETURNING *`,
             values: values
         };
         
         const result = await pool.query(query);
+
+        // Si la consulta no devuelve nada, es porque el id no existía o el creador_id no coincidía.
         return result.rows[0];
 
     } catch (error) {
