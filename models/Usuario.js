@@ -118,15 +118,11 @@ async updatePasswordById(id, newPasswordHash) {
 
   async checkCredential(email, password) {
     try {
-      const query = {
-        text: `SELECT * FROM usuario WHERE correo = $1`,
-        values: [email],
-      };
-      const result = await pool.query(query);
-      if (result.rows.length === 0) {
+      const usuario = await this.findByEmail(email);
+
+      if (!usuario) {
         return null;
       }
-      const usuario = result.rows[0];
       const passwordMatch = await bcrypt.compare(
         password,
         usuario.password_hash
@@ -138,6 +134,21 @@ async updatePasswordById(id, newPasswordHash) {
       return usuario;
     } catch (error) {
       console.error("Error al verificar credenciales: ", error);
+      throw error;
+    }
+  }
+
+  async findByEmail(email) {
+    try {
+      const query = {
+        text: `SELECT * FROM usuario WHERE correo = $1`,
+        values: [email]
+      }
+      const result = await pool.query(query);
+      return result.rows[0];
+    }
+    catch (error) {
+      console.error("Ha ocurrido un error al buscar el usuario por correo: ", error);
       throw error;
     }
   }

@@ -121,22 +121,18 @@ export const updateViajeCompartido = async (req, res) => {
   const viajeId = req.params.id;
   const conductorIdDelToken = req.user.id;
   try {
-    const viajeExistente = await viajeCompartidoModel.getById(viajeId);
-    if (!viajeExistente) {
-      return res.status(404).json({ message: "Viaje no encontrado" });
-    }
-    if (viajeExistente.id_conductor !== conductorIdDelToken) {
-      return res
-        .status(403)
-        .json({
-          message: "Prohibido: No tienes permiso para modificar este viaje.",
-        });
-    }
-
     const viajeActualizado = await viajeCompartidoModel.updateViajeById(
       viajeId,
-      req.body
+      req.body,
+      conductorIdDelToken
     );
+
+    if (!viajeActualizado) {
+      return res.status(404).json({
+        message: "Viaje no encontrado, no tienes permiso para modificarlo, o no se enviaron datos válidos.",
+      });
+    }
+
     res.status(200).json({
       message: "Viaje compartido actualizado con éxito",
       data: viajeActualizado,

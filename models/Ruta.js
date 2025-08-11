@@ -51,33 +51,38 @@ class Ruta {
         }
     };
 
-async updateById(id, updatedBody) {
+async updateById(id, updatedBody, creadorId) {
     try {
-        // CORRECCIÓN: Lista de campos limpia y completa
         const updatableFields = ['titulo', 'descripcion', 'punto_inicio', 'punto_destino', 'tipo_transporte'];
-        
         const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
 
         if (fieldsToUpdate.length === 0) {
-            return this.findById(id); // Usa el nombre correcto del método de tu clase
+            // Si no hay nada que actualizar, no tiene sentido consultar la BD.
+            return null; 
         }
 
         const setClause = fieldsToUpdate
-            .map((field, index) => `"${field}" = $${index + 1}`)
+            .map((field, index) => `"${field}" = ${index + 1}`)
             .join(', ');
 
+        // Prepara los valores para los placeholders
         const values = fieldsToUpdate.map(field => updatedBody[field]);
         
+        // Añade id y creadorId al final del array de valores para usarlos en el WHERE
         values.push(id);
         const idIndex = values.length;
+        values.push(creadorId);
+        const creadorIdIndex = values.length;
 
         const query = {
-            text: `UPDATE ruta SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+            // La cláusula WHERE ahora comprueba ambos IDs de forma segura
+            text: `UPDATE ruta SET ${setClause} WHERE id = ${idIndex} AND creador_id = ${creadorIdIndex} RETURNING *`,
             values: values
         };
         
         const result = await pool.query(query);
 
+        // Si la consulta no devuelve nada, es porque el id no existía o el creador_id no coincidía.
         return result.rows[0];
 
     } catch (error) {
@@ -85,11 +90,13 @@ async updateById(id, updatedBody) {
         throw error;
     }
 }
-    async deleteById(id){
+    async deleteById(rutaId, creadorId){
         try {
             const query = {
-                text: 'DELETE FROM ruta WHERE id = $1 RETURNING *',
-                values: [id]
+                text: 'DELETE FROM ruta WHERE id = $1 AND creador_id = $2 RETURNING *',
+                values: [rutaId,
+                        creadorId
+                ]
             };
             const result = await pool.query(query);
             return result.rows[0];

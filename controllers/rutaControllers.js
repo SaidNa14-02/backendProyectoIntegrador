@@ -42,20 +42,11 @@ export const deleteRuta = async (req, res) => {
   try {
     const rutaId = req.params.id;
     const creadorIdDelToken = req.user.id;
-    const rutaExistente = await rutaModel.findById(rutaId);
-    if (!rutaExistente) {
-      return res.status(404).json({ message: "Ruta no encontrada" });
-    }
 
-    if (rutaExistente.creador_id !== creadorIdDelToken) {
-      return res
-        .status(403)
-        .json({ message: "Prohibido: No eres el creador de esta ruta." });
-    }
-    const rutaEliminada = await rutaModel.deleteById(rutaId);
+    const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken);
     if (!rutaEliminada) {
       return res.status(404).json({
-        message: "Ruta no encontrada",
+        message: "Ruta no encontrada o no eres el cradeador de esta ruta.",
       });
     }
 
@@ -76,19 +67,17 @@ export const updateRuta = async (req, res) => {
     const rutaId = req.params.id;
     const body = req.body;
     const creadorIdDelToken = req.user.id;
-    const rutaExistente = await rutaModel.findById(rutaId);
-    if (!rutaExistente) {
-        return res.status(404).json({ message: "Ruta no encontrada" });
-    }
-    
-    if (rutaExistente.creador_id !== creadorIdDelToken) {
-        return res.status(403).json({ message: "Prohibido: No eres el creador de esta ruta." });
-    }
-    const rutaActualizada = await rutaModel.updateById(rutaId, body);
+
+    const rutaActualizada = await rutaModel.updateById(rutaId, body, creadorIdDelToken);
+
     if (!rutaActualizada) {
-      return res.status(404).json({ message: "Ruta no encontrada" });
+      return res.status(404).json({ 
+        message: "Ruta no encontrada, no tienes permiso para modificarla, o no se enviaron datos para actualizar."
+      });
     }
-    res.status(200).json({ message: "Ruta actualizada correctamente",
+
+    res.status(200).json({ 
+        message: "Ruta actualizada correctamente",
         data: rutaActualizada 
     });
   } catch (error) {
