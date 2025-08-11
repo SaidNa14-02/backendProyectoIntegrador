@@ -13,7 +13,7 @@ app.use(express.json());
 app.use('/api/rutas', rutaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/viajes', viajeCompartidoRoutes);
-app.use('/api/reservas', reservaRoutes)
+app.use('/api/reservas', reservaRoutes);
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en puerto ${port}`);
