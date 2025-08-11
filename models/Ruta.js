@@ -59,7 +59,7 @@ async updateById(id, updatedBody) {
         const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
 
         if (fieldsToUpdate.length === 0) {
-            return this.findById(id); // Usa el nombre correcto del método de tu clase
+            return this.findById(id); 
         }
 
         const setClause = fieldsToUpdate
@@ -85,11 +85,13 @@ async updateById(id, updatedBody) {
         throw error;
     }
 }
-    async deleteById(id){
+    async deleteById(rutaId, creadorId){
         try {
             const query = {
-                text: 'DELETE FROM ruta WHERE id = $1 RETURNING *',
-                values: [id]
+                text: 'DELETE FROM ruta WHERE id = $1 AND creador_id = $2 RETURNING *',
+                values: [rutaId,
+                        creadorId
+                ]
             };
             const result = await pool.query(query);
             return result.rows[0];

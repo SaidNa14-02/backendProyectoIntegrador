@@ -42,20 +42,11 @@ export const deleteRuta = async (req, res) => {
   try {
     const rutaId = req.params.id;
     const creadorIdDelToken = req.user.id;
-    const rutaExistente = await rutaModel.findById(rutaId);
-    if (!rutaExistente) {
-      return res.status(404).json({ message: "Ruta no encontrada" });
-    }
 
-    if (rutaExistente.creador_id !== creadorIdDelToken) {
-      return res
-        .status(403)
-        .json({ message: "Prohibido: No eres el creador de esta ruta." });
-    }
-    const rutaEliminada = await rutaModel.deleteById(rutaId);
+    const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken);
     if (!rutaEliminada) {
       return res.status(404).json({
-        message: "Ruta no encontrada",
+        message: "Ruta no encontrada o no eres el cradeador de esta ruta.",
       });
     }
 

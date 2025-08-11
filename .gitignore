@@ -62,3 +62,6 @@ web_modules/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+inmediateChanges.txt
+BackupPinboard.sql

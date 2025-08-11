@@ -5,7 +5,7 @@ import { isauthenticated } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.post('/register', createUsuario);
-router.get('/', getAllUsuarios);
+router.get('/', isauthenticated, getAllUsuarios);
 router.delete('/:id', isauthenticated, deleteUsuario);
 router.patch('/:id', isauthenticated, updateUsuario);
 router.patch('/my/password', isauthenticated, changePassword);
