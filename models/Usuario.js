@@ -44,7 +44,11 @@ class Usuario {
         values: [id],
       };
       const result = await pool.query(query);
-      return result.rows[0];
+      const usuario = result.rows[0];
+      if (usuario) {
+        delete usuario.password_hash;
+      }
+      return usuario;
     } catch (error) {
       console.error("No se ha encontrado el elemento: ", error);
       throw error;
