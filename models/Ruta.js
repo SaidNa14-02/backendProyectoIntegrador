@@ -51,33 +51,31 @@ class Ruta {
         }
     };
 
-async updateById(id, updatedBody) {
+async updateById(id, updatedBody, creadorId) {
     try {
-        // CORRECCIÓN: Lista de campos limpia y completa
         const updatableFields = ['titulo', 'descripcion', 'punto_inicio', 'punto_destino', 'tipo_transporte'];
-        
         const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
 
         if (fieldsToUpdate.length === 0) {
-            return this.findById(id); 
+            return null; 
         }
 
         const setClause = fieldsToUpdate
-            .map((field, index) => `"${field}" = $${index + 1}`)
+            .map((field, index) => `"${field}" = ${index + 1}`)
             .join(', ');
 
         const values = fieldsToUpdate.map(field => updatedBody[field]);
-        
         values.push(id);
         const idIndex = values.length;
+        values.push(creadorId);
+        const creadorIdIndex = values.length;
 
         const query = {
-            text: `UPDATE ruta SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+            text: `UPDATE ruta SET ${setClause} WHERE id = ${idIndex} AND creador_id = ${creadorIdIndex} RETURNING *`,
             values: values
         };
         
         const result = await pool.query(query);
-
         return result.rows[0];
 
     } catch (error) {
