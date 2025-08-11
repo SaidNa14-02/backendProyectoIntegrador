@@ -98,7 +98,7 @@ class ViajeCompartido {
     }
   }
 
-  async updateViajeById(id, updatedBody) {
+  async updateViajeById(id, updatedBody, conductorId) {
     try {
       const updatableFields = [
         "origen",
@@ -112,20 +112,22 @@ class ViajeCompartido {
       );
 
       if (fieldsToUpdate.length === 0) {
-        return this.getById(id);
+        return null;
       }
 
       const setClause = fieldsToUpdate
-        .map((field, index) => `"${field}" = $${index + 1}`)
+        .map((field, index) => `"${field}" = ${index + 1}`)
         .join(", ");
 
       const values = fieldsToUpdate.map((field) => updatedBody[field]);
 
       values.push(id);
       const idIndex = values.length;
+      values.push(conductorId);
+      const conductorIdIndex = values.length;
 
       const query = {
-        text: `UPDATE viajecompartido SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+        text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idIndex} AND id_conductor = ${conductorIdIndex} RETURNING *`,
         values: values,
       };
 
