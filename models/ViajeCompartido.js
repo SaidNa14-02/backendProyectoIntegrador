@@ -147,7 +147,6 @@ class ViajeCompartido {
         };
         const result = await pool.query(query);
         
-        // Devuelve el viaje actualizado. Si no se encontró, el controlador recibirá undefined.
         return result.rows[0]; 
     } catch (error) {
         console.error("Error al actualizar el estado del viaje compartido: ", error);
