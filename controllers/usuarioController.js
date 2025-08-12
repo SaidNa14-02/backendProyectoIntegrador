@@ -1,9 +1,15 @@
 import Usuario from "../models/Usuario.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { validationResult } from "express-validator";
 const usuarioModel = new Usuario();
 
 export const createUsuario = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()})
+  }
+
   try {
     const newUsuario = await usuarioModel.create(req.body);
     res.status(201).json({
@@ -86,6 +92,11 @@ export const deleteUsuario = async (req, res) => {
 };
 
 export const updateUsuario = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
     const userIdFromToken = req.user.id;
     const userIdFromParams = parseInt(req.params.id, 10);
@@ -149,6 +160,10 @@ export const loginUsuario = async (req, res) => {
 };
 
 export const changePassword = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   try {
     const { id } = req.user;
     const { newPassword } = req.body;
