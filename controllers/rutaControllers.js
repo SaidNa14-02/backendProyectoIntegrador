@@ -40,7 +40,7 @@ export const getRutas = async (req, res) => {
 
 export const deleteRuta = async (req, res) => {
   try {
-    const rutaId = req.params.id;
+    const rutaId = parseInt(req.params.id);
     const creadorIdDelToken = req.user.id;
 
     const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken);
@@ -64,7 +64,7 @@ export const deleteRuta = async (req, res) => {
 
 export const updateRuta = async (req, res) => {
   try {
-    const rutaId = req.params.id;
+    const rutaId = parseInt(req.params.id);
     const body = req.body;
     const creadorIdDelToken = req.user.id;
 

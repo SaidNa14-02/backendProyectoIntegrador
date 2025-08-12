@@ -65,7 +65,7 @@ export const getViajeCompartidoByUserId = async (req, res) => {
 
 export const getViajeCompartidoById = async (req, res) => {
   try {
-    const viajeId = req.params.id;
+    const viajeId = parseInt(req.params.id);
     const viaje = await viajeCompartidoModel.getViajeCompartidoById(viajeId);
     if (!viaje) {
       return res
@@ -76,18 +76,18 @@ export const getViajeCompartidoById = async (req, res) => {
       message: "Viaje compartido obtenido con éxito",
       data: viaje,
     });
-  }
-} catch (error) {
-    res.status(500).json({
-      message: "Error al obtener el elemento",
-      error: error.message,
-    });
-  }
-};
+  } 
+  catch (error) {
+      res.status(500).json({
+        message: "Error al obtener el elemento",
+        error: error.message,
+      });
+    }
+  };
 
 export const deleteViajeCompartido = async (req, res) => {
   try {
-    const viajeId = req.params.id;
+    const viajeId = parseInt(req.params.id);
     const conductorIdDelToken = req.user.id;
 
     const viajeEliminado = await viajeCompartidoModel.deleteViajeCompartidoById(
@@ -114,7 +114,7 @@ export const deleteViajeCompartido = async (req, res) => {
 };
 
 export const updateViajeCompartido = async (req, res) => {
-  const viajeId = req.params.id;
+  const viajeId = parseInt(req.params.id);
   const conductorIdDelToken = req.user.id;
   try {
     const viajeActualizado = await viajeCompartidoModel.updateViajeById(
@@ -143,7 +143,7 @@ export const updateViajeCompartido = async (req, res) => {
 
 export const listarPasajerosDeRuta = async (req, res) => {
   try {
-    const viajeId = req.params.id;
+    const viajeId = parseInt(req.params.id);
     const conductorId = req.user.id;
 
     const viaje = await viajeCompartidoModel.getById(viajeId);
