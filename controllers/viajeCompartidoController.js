@@ -1,6 +1,9 @@
 import ViajeCompartido from "../models/ViajeCompartido.js";
 import jwt from "jsonwebtoken";
+import Reserva from '../models/Reserva.js'; // New import
+
 const viajeCompartidoModel = new ViajeCompartido();
+const reservaModel = new Reserva(); // New instance
 
 export const createViajeCompartido = async (req, res) => {
   try {
@@ -73,7 +76,8 @@ export const getViajeCompartidoById = async (req, res) => {
       message: "Viaje compartido obtenido con éxito",
       data: viaje,
     });
-  } catch (error) {
+  }
+} catch (error) {
     res.status(500).json({
       message: "Error al obtener el elemento",
       error: error.message,
@@ -86,25 +90,17 @@ export const deleteViajeCompartido = async (req, res) => {
     const viajeId = req.params.id;
     const conductorIdDelToken = req.user.id;
 
-    const viajeExistente = await viajeCompartidoModel.getById(viajeId);
-    if (!viajeExistente) {
-      return res.status(404).json({ message: "Viaje no encontrado" });
-    }
-    if (viajeExistente.id_conductor !== conductorIdDelToken) {
-      return res
-        .status(403)
-        .json({
-          message: "Prohibido: No tienes permiso para eliminar este viaje.",
-        });
-    }
-    const viajeEliminado = await viajeCompartidoModel.deleteViajeCompartido(
-      viajeId
+    const viajeEliminado = await viajeCompartidoModel.deleteViajeCompartidoById(
+      viajeId,
+      conductorIdDelToken
     );
+
     if (!viajeEliminado) {
       return res.status(404).json({
-        message: "Viaje compartido no encontrado",
+        message: "Viaje no encontrado o no tienes permiso para eliminarlo.",
       });
     }
+    
     res.status(200).json({
       message: "Viaje compartido eliminado con éxito",
       data: viajeEliminado,
@@ -140,6 +136,34 @@ export const updateViajeCompartido = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error al actualizar el viaje compartido",
+      error: error.message,
+    });
+  }
+};
+
+export const listarPasajerosDeRuta = async (req, res) => {
+  try {
+    const viajeId = req.params.id;
+    const conductorId = req.user.id;
+
+    const viaje = await viajeCompartidoModel.getById(viajeId);
+    if (!viaje) {
+      return res.status(404).json({ message: "Viaje no encontrado." });
+    }
+
+    if (viaje.id_conductor !== conductorId) {
+      return res.status(403).json({ message: "Prohibido: No eres el conductor de este viaje." });
+    }
+
+    const pasajeros = await reservaModel.getAllUsersInReserve(viajeId);
+
+    res.status(200).json({
+      message: "Pasajeros del viaje obtenidos con éxito",
+      data: pasajeros,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener la lista de pasajeros del viaje",
       error: error.message,
     });
   }
