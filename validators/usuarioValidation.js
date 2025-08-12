@@ -117,3 +117,11 @@ export const changePasswordValidate = [
             return true;
         })
 ]
+
+export const loginValidate = [
+    body('correo')
+        .notEmpty().withMessage('El email es obligatorio')
+        .isEmail().withMessage('El email debe ser válido'),
+    body('password')
+        .notEmpty().withMessage('La contraseña es obligatoria')
+]   

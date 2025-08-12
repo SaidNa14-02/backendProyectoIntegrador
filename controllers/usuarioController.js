@@ -130,6 +130,10 @@ export const updateUsuario = async (req, res) => {
 };
 
 export const loginUsuario = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()})
+  }
   try {
     const { correo, password } = req.body;
     const usuario = await usuarioModel.checkCredential(correo, password);
