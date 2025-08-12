@@ -1,11 +1,17 @@
 import ViajeCompartido from "../models/ViajeCompartido.js";
 import jwt from "jsonwebtoken";
 import Reserva from '../models/Reserva.js'; // New import
+import { validationResult } from 'express-validator';
 
 const viajeCompartidoModel = new ViajeCompartido();
 const reservaModel = new Reserva(); // New instance
 
 export const createViajeCompartido = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
     const id_conductor = req.user.id;
     const datosViaje = {
@@ -114,6 +120,11 @@ export const deleteViajeCompartido = async (req, res) => {
 };
 
 export const updateViajeCompartido = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const viajeId = parseInt(req.params.id);
   const conductorIdDelToken = req.user.id;
   try {
