@@ -6,8 +6,8 @@ const viajeModel = new ViajeCompartido();
 
 export const createReserva = async (req, res) => {
     try {
-        const pasajeroId = req.user.id;
-        const viajeId = req.params.id; 
+        const pasajeroId = parseInt(req.user.id);
+        const viajeId = parseInt(req.params.id, 10); 
 
         if (!viajeId) {
             return res.status(400).json({ message: "El ID del viaje es requerido." });
@@ -64,7 +64,7 @@ export const getReservasByUser = async(req, res) => {
 
 export const deleteReserva = async (req, res) => {
     try {
-        const viajeId = req.params.id; 
+        const viajeId = parseInt(req.params.id, 10); 
         const pasajeroId = req.user.id; 
 
         const reservaEliminada = await reservaModel.delete(viajeId, pasajeroId);
@@ -72,8 +72,7 @@ export const deleteReserva = async (req, res) => {
         if (!reservaEliminada) {
             return res.status(404).json({ message: "No se encontró una reserva para este usuario en este viaje." });
         }
-
-        // Añade la respuesta de éxito
+        
         res.status(200).json({
             message: "Reserva eliminada exitosamente",
             data: reservaEliminada

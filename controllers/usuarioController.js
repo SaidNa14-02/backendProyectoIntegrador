@@ -41,7 +41,7 @@ export const getAllUsuarios = async (req, res) => {
 
 export const getUsuarioById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = parseInt(req.params.id);
     const usuario = await usuarioModel.getById(id);
     if (!usuario) {
       return res.status(404).json({
@@ -218,7 +218,7 @@ export const getMyProfile = async (req, res) => {
 
 export const getPublicProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = parseInt(req.params.id);
     const usuario = await usuarioModel.getById(userId);
     if (!usuario) {
       return res.status(404).json({

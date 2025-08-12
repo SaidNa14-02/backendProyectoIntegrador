@@ -1,0 +1,40 @@
+# Tareas Pendientes para el Proyecto Backend
+
+Este documento resume las funcionalidades y mejoras que aún quedan por implementar o completar.
+
+## 1. Validación de Entradas (express-validator)
+
+Aplicar validación de `req.body` usando `express-validator` a los siguientes endpoints:
+
+-   **loginUsuario:** Validar `correo` y `password`.
+    -   Archivo: `controllers/usuarioController.js`
+-   **createRuta:** Validar `titulo`, `descripcion`, `punto_inicio`, `punto_destino`, `tipo_transporte`.
+    -   Archivo: `controllers/rutaControllers.js`
+-   **updateRuta:** Validar `titulo`, `descripcion`, `punto_inicio`, `punto_destino`, `tipo_transporte` (opcionales).
+    -   Archivo: `controllers/rutaControllers.js`
+-   **createViajeCompartido:** Validar `origen`, `destino`, `fecha_hora_salida`, `asientos_ofrecidos`.
+    -   Archivo: `controllers/viajeCompartidoController.js`
+-   **updateViajeCompartido:** Validar `origen`, `destino`, `fecha_hora_salida`, `asientos_ofrecidos`, `estado` (opcionales).
+    -   Archivo: `controllers/viajeCompartidoController.js`
+
+## 2. Expansión y Especialización de Métodos en Modelos
+
+-   **countByViajeId en Reserva.js:** Crear un método `async countByViajeId(viajeId)` que devuelva solo el número de reservas para un viaje. (Opcional, ya que es una optimización).
+    -   Archivo: `models/Reserva.js`
+
+## 3. Integración con el Frontend (CORS y Consumo de API)
+
+-   **Configuración de CORS:** Habilitar CORS en `index.js` para permitir que el frontend acceda a la API.
+    -   Archivo: `index.js`
+-   **Integración con Axios (Frontend):** Aunque es una tarea del frontend, es el siguiente paso lógico para consumir la API.
+    -   Instalar Axios en el proyecto frontend.
+    -   Configurar una instancia de Axios con la `baseURL` de la API.
+    -   Implementar llamadas a la API usando Axios.
+    -   Configurar interceptores de Axios para manejar automáticamente el envío del token JWT en los encabezados `Authorization`.
+
+## 4. Funcionalidades Adicionales (Según lista original)
+
+-   **Buscar Rutas con Filtros:** Añadir lógica de filtrado por `origen`, `destino` y `fecha` a la función `getAllViajesCompartidos`.
+    -   Archivo: `controllers/viajeCompartidoController.js`
+-   **Sistema de Calificación:** Implementar la funcionalidad `calificarUsuario`.
+    -   Archivos: `controllers/usuarioController.js`, `models/Usuario.js` (posiblemente nueva tabla `calificacion`).
