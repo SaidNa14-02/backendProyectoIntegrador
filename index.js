@@ -3,7 +3,9 @@ import rutaRoutes from './routes/rutaRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import viajeCompartidoRoutes from './routes/viajeRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
+import cors from 'cors';
 const app = express();
+app.use(cors());
 const port = 3000;
 
 // Middleware para parsear JSON
