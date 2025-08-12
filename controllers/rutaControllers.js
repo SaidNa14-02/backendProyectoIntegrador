@@ -1,8 +1,14 @@
 import Ruta from "../models/Ruta.js";
+import { validationResult } from 'express-validator';
 
 const rutaModel = new Ruta();
 
 export const createRuta = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   try {
     const creadorId = req.user.id;
     //Añade el el id a la propiedad creador_id del body
@@ -63,6 +69,11 @@ export const deleteRuta = async (req, res) => {
 };
 
 export const updateRuta = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  
   try {
     const rutaId = parseInt(req.params.id);
     const body = req.body;
