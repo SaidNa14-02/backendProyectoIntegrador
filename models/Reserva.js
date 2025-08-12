@@ -58,6 +58,30 @@ class Reserva {
             throw error;
         }
     }
+
+    async getAllUsersInReserve(viajeId) {
+       try {
+            const query = {
+                text: `SELECT 
+                        u.id, 
+                        u.nombre AS pasajero_nombre, 
+                        u.apellido AS pasajero_apellido,
+                        u.correo AS pasajero_correo
+                        FROM usuario u
+                        JOIN reserva r ON u.id = r.pasajero_id
+                        WHERE r.viaje_id = $1`,
+                values: [viajeId]
+                
+            }
+            const result = await pool.query(query);
+            return result.rows;
+       }    
+       catch (error) {
+            console.error("Error al obtener los usuarios en la reserva: ", error);
+            throw error;
+       }
+
+    }
 }
 
 export default Reserva;

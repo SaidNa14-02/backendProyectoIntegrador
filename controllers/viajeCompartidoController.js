@@ -1,6 +1,9 @@
 import ViajeCompartido from "../models/ViajeCompartido.js";
 import jwt from "jsonwebtoken";
+import Reserva from '../models/Reserva.js'; // New import
+
 const viajeCompartidoModel = new ViajeCompartido();
+const reservaModel = new Reserva(); // New instance
 
 export const createViajeCompartido = async (req, res) => {
   try {
@@ -73,7 +76,8 @@ export const getViajeCompartidoById = async (req, res) => {
       message: "Viaje compartido obtenido con éxito",
       data: viaje,
     });
-  } catch (error) {
+  }
+} catch (error) {
     res.status(500).json({
       message: "Error al obtener el elemento",
       error: error.message,
@@ -132,6 +136,34 @@ export const updateViajeCompartido = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error al actualizar el viaje compartido",
+      error: error.message,
+    });
+  }
+};
+
+export const listarPasajerosDeRuta = async (req, res) => {
+  try {
+    const viajeId = req.params.id;
+    const conductorId = req.user.id;
+
+    const viaje = await viajeCompartidoModel.getById(viajeId);
+    if (!viaje) {
+      return res.status(404).json({ message: "Viaje no encontrado." });
+    }
+
+    if (viaje.id_conductor !== conductorId) {
+      return res.status(403).json({ message: "Prohibido: No eres el conductor de este viaje." });
+    }
+
+    const pasajeros = await reservaModel.getAllUsersInReserve(viajeId);
+
+    res.status(200).json({
+      message: "Pasajeros del viaje obtenidos con éxito",
+      data: pasajeros,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener la lista de pasajeros del viaje",
       error: error.message,
     });
   }
