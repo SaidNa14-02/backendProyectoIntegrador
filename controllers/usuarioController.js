@@ -200,3 +200,32 @@ export const getMyProfile = async (req, res) => {
   }
 
 }
+
+export const getPublicProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const usuario = await usuarioModel.getById(userId);
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+    const publicProfile = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+    };
+    res.status(200).json({
+      message: "Perfil obtenido exitosamente",
+      data: publicProfile
+    })
+  }
+  catch (error) {
+    res.status(500).json({
+      message: "Error al obtener el perfil del usuario",
+      error: error.message
+    })
+  }
+
+
+}

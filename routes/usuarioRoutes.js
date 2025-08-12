@@ -1,5 +1,5 @@
 import express from 'express';
-import {createUsuario, getAllUsuarios, deleteUsuario, updateUsuario, loginUsuario, changePassword, getMyProfile} from '../controllers/usuarioController.js'
+import {createUsuario, getAllUsuarios, deleteUsuario, updateUsuario, loginUsuario, changePassword, getMyProfile, getPublicProfile} from '../controllers/usuarioController.js'
 import { isauthenticated } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -11,4 +11,5 @@ router.patch('/:id', isauthenticated, updateUsuario);
 router.patch('/me/password', isauthenticated, changePassword);
 router.get('/me/profile', isauthenticated, getMyProfile);
 router.post('/login', loginUsuario);
+router.get('userprofile/:id', isauthenticated, getPublicProfile)
 export default router;
