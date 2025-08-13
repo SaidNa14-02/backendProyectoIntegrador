@@ -16,6 +16,9 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+// Confiar en el proxy de Render para obtener la IP real del usuario
+app.set('trust proxy', 1);
+
 //Middleware
 app.use(express.json());
 app.use(cors());
