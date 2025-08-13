@@ -59,3 +59,5 @@ class RutasFavoritas {
         }
     }
 }
+
+export default RutasFavoritas;
