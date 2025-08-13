@@ -24,20 +24,7 @@ export const createUsuario = async (req, res) => {
   }
 };
 
-export const getAllUsuarios = async (req, res) => {
-  try {
-    const usuarios = await usuarioModel.findAll();
-    res.status(200).json({
-      message: "Usuarios obtenidos exitosamente",
-      data: usuarios,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener los usuarios",
-      error: error.message,
-    });
-  }
-};
+
 
 export const getUsuarioById = async (req, res) => {
   try {
@@ -220,31 +207,3 @@ export const getMyProfile = async (req, res) => {
 
 }
 
-export const getPublicProfile = async (req, res) => {
-  try {
-    const userId = parseInt(req.params.id);
-    const usuario = await usuarioModel.getById(userId);
-    if (!usuario) {
-      return res.status(404).json({
-        message: "Usuario no encontrado",
-      });
-    }
-    const publicProfile = {
-      id: usuario.id,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-    };
-    res.status(200).json({
-      message: "Perfil obtenido exitosamente",
-      data: publicProfile
-    })
-  }
-  catch (error) {
-    res.status(500).json({
-      message: "Error al obtener el perfil del usuario",
-      error: error.message
-    })
-  }
-
-
-}
