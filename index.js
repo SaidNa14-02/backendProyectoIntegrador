@@ -7,6 +7,13 @@ import rutaFavoritaRoutes from './routes/rutaFavoritaRoutes.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import pool from './src/db.js'; // Importar pool de db.js
+
+// Verificar que JWT_SECRET esté definida
+if (!process.env.JWT_SECRET) {
+    throw new Error('La variable de entorno JWT_SECRET no está definida.');
+}
+
 const app = express();
 
 //Middleware

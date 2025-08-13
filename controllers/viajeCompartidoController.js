@@ -134,6 +134,10 @@ export const updateViajeCompartido = async (req, res) => {
       conductorIdDelToken
     );
 
+    if (req.body.estado) {
+      await viajeCompartidoModel.updateStatus(viajeId, req.body.estado);
+    }
+
     if (!viajeActualizado) {
       return res.status(404).json({
         message: "Viaje no encontrado, no tienes permiso para modificarlo, o no se enviaron datos válidos.",
