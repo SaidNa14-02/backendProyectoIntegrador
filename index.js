@@ -12,6 +12,10 @@ const app = express();
 //Middleware
 app.use(express.json());
 app.use(cors());
+
+//Para el proyecto, las configuraciones por defecto de Helmet son suficientes
+app.use(helmet())
+
 //Configuración de la limitación de solicitudes
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
@@ -23,10 +27,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-const port = 3000;
-
-//Para el proyecto, las configuraciones por defecto de Helmet son suficientes
-app.use(helmet())
+const port = process.env.PORT || 3000;
 
 // Rutas
 app.use('/api/rutas', rutaRoutes);
