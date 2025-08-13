@@ -1,5 +1,5 @@
 import {body} from 'express-validator';
-import Usuario from '../models/Usuario';
+import Usuario from '../models/Usuario.js';
 import bcrypt from 'bcryptjs';
 
 const usuarioModel = new Usuario();

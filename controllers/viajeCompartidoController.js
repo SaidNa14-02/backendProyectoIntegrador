@@ -33,7 +33,7 @@ export const createViajeCompartido = async (req, res) => {
 
 export const getAllViajesCompartidos = async (req, res) => {
   try {
-    const viajes = await viajeCompartidoModel.getAllViajesCompartidos();
+    const viajes = await viajeCompartidoModel.getViajesCompartidos();
     res.status(200).json({
       message: "Viajes compartidos obtenidos con éxito",
       data: viajes,
@@ -133,6 +133,10 @@ export const updateViajeCompartido = async (req, res) => {
       req.body,
       conductorIdDelToken
     );
+
+    if (req.body.estado) {
+      await viajeCompartidoModel.updateStatus(viajeId, req.body.estado);
+    }
 
     if (!viajeActualizado) {
       return res.status(404).json({

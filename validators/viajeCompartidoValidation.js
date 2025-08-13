@@ -29,5 +29,5 @@ export const updateViajeCompartidoValidate = [
     body('estado')
         .optional()
         .notEmpty().withMessage('El estado no puede estar vacío')
-        .isIn(['programado', 'en_curso', 'finalizado', 'cancelado']).withMessage('Valor de estado no válido'),
+        .isIn(['PROGRAMADO', 'EN_CURSO', 'FINALIZADO', 'CANCELADO']).withMessage('Valor de estado no válido'),
 ];

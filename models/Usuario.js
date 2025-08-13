@@ -27,15 +27,7 @@ class Usuario {
     }
   }
 
-  async findAll() {
-    try {
-      const result = await pool.query("SELECT * FROM usuario");
-      return result.rows;
-    } catch (error) {
-      console.error({ error: "No se han encontrado registros" });
-      throw error;
-    }
-  }
+  
 
   async getById(id) {
     try {

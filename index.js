@@ -7,11 +7,25 @@ import rutaFavoritaRoutes from './routes/rutaFavoritaRoutes.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import pool from './src/db.js'; // Importar pool de db.js
+
+// Verificar que JWT_SECRET esté definida
+if (!process.env.JWT_SECRET) {
+    throw new Error('La variable de entorno JWT_SECRET no está definida.');
+}
+
 const app = express();
+
+// Confiar en el proxy de Render para obtener la IP real del usuario
+app.set('trust proxy', 1);
 
 //Middleware
 app.use(express.json());
 app.use(cors());
+
+//Para el proyecto, las configuraciones por defecto de Helmet son suficientes
+app.use(helmet())
+
 //Configuración de la limitación de solicitudes
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
@@ -23,10 +37,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-const port = 3000;
-
-//Para el proyecto, las configuraciones por defecto de Helmet son suficientes
-app.use(helmet())
+const port = process.env.PORT || 3000;
 
 // Rutas
 app.use('/api/rutas', rutaRoutes);
