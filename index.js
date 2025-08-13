@@ -25,8 +25,6 @@ app.use(limiter);
 
 const port = 3000;
 
-// Middleware para parsear JSON
-app.use(express.json());
 //Para el proyecto, las configuraciones por defecto de Helmet son suficientes
 app.use(helmet())
 
