@@ -3,6 +3,7 @@ import rutaRoutes from './routes/rutaRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import viajeCompartidoRoutes from './routes/viajeRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
+import rutaFavoritaRoutes from './routes/rutaFavoritaRoutes.js';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -34,6 +35,7 @@ app.use('/api/rutas', rutaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/viajes', viajeCompartidoRoutes);
 app.use('/api/reservas', reservaRoutes);
+app.use('/api/rutas-favoritas', rutaFavoritaRoutes);
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en puerto ${port}`);
