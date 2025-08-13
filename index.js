@@ -4,6 +4,7 @@ import usuarioRoutes from './routes/usuarioRoutes.js';
 import viajeCompartidoRoutes from './routes/viajeRoutes.js';
 import reservaRoutes from './routes/reservaRoutes.js';
 import cors from 'cors';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 const app = express();
 
@@ -24,6 +25,9 @@ app.use(limiter);
 const port = 3000;
 
 // Middleware para parsear JSON
+app.use(express.json());
+//Para el proyecto, las configuraciones por defecto de Helmet son suficientes
+app.use(helmet())
 
 // Rutas
 app.use('/api/rutas', rutaRoutes);
