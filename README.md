@@ -98,6 +98,18 @@ Este proyecto es el backend de una aplicación para compartir viajes en vehícul
     *   `delete(viajeId, pasajeroId)`: Elimina una reserva.
     *   `getAllUsersInReserve(viajeId)`: Devuelve los usuarios de una reserva.
 
+### RutasGuardadas
+
+*   **Archivo:** `models/RutasGuardadas.js`
+*   **Campos:**
+    *   `usuario_id` (PK, FK a `usuario.id`)
+    *   `ruta_id` (PK, FK a `ruta.id`)
+*   **Métodos:**
+    *   `guardarRuta(rutaId, usuarioId)`: Guarda una ruta como favorita para un usuario.
+    *   `findRutasGuardadasByUsuario(usuarioId)`: Devuelve todas las rutas guardadas por un usuario.
+    *   `eliminarRutaGuardada(rutaId, usuarioId)`: Elimina una ruta guardada por un usuario.
+    *   `findRutaGuardada(rutaId, usuarioId)`: Verifica si una ruta específica está guardada por un usuario.
+
 ## Controladores
 
 ### usuarioController.js
@@ -135,6 +147,13 @@ Este proyecto es el backend de una aplicación para compartir viajes en vehícul
 *   `getReservasByUser`: Obtiene las reservas de un usuario.
 *   `deleteReserva`: Elimina una reserva.
 
+### rutaFavoritaController.js
+
+*   `guardarRutaFavorita`: Guarda una ruta como favorita para un usuario.
+*   `obtenerRutasFavoritas`: Obtiene todas las rutas favoritas de un usuario.
+*   `eliminarRutaFavorita`: Elimina una ruta favorita de un usuario.
+*   `checkRutaFavorita`: Verifica si una ruta específica está guardada por un usuario.
+
 ## Rutas
 
 ### Rutas de Usuario (`/api/usuarios`)
@@ -171,6 +190,13 @@ Este proyecto es el backend de una aplicación para compartir viajes en vehícul
 *   `GET /`: Obtiene las reservas del usuario autenticado (requiere autenticación).
 *   `DELETE /:id`: Elimina una reserva (requiere autenticación).
 
+### Rutas de Rutas Guardadas (`/api/rutas-favoritas`)
+
+*   `POST /`: Guarda una ruta como favorita para el usuario autenticado (requiere autenticación).
+*   `GET /`: Obtiene todas las rutas favoritas del usuario autenticado (requiere autenticación).
+*   `DELETE /:rutaId`: Elimina una ruta favorita del usuario autenticado (requiere autenticación).
+*   `GET /check/:rutaId`: Verifica si una ruta específica está guardada por el usuario autenticado (requiere autenticación).
+
 ## Middleware
 
 ### authMiddleware.js
@@ -184,3 +210,9 @@ Este proyecto es el backend de una aplicación para compartir viajes en vehícul
 *   `usuarioValidate`: Valida los campos para crear un nuevo usuario.
 *   `updateProfileValidate`: Valida los campos para actualizar un usuario.
 *   `changePasswordValidate`: Valida los campos para cambiar la contraseña.
+
+### rutaFavoritaValidation.js
+
+*   `guardarRutaFavoritaValidate`: Valida los campos para guardar una ruta favorita.
+*   `eliminarRutaFavoritaValidate`: Valida los campos para eliminar una ruta favorita.
+*   `checkRutaFavoritaValidate`: Valida los campos para verificar una ruta favorita.
