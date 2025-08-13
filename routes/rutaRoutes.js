@@ -6,7 +6,7 @@ import { createRutaValidate, updateRutaValidate } from '../validators/rutaValida
 const router = express.Router();
 
 router.post('/', isauthenticated, createRutaValidate, createRuta);
-router.get('/', getRutas);
+router.get('/', isauthenticated, getRutas);
 router.delete('/:id', isauthenticated, deleteRuta);
 router.put('/:id', isauthenticated, updateRutaValidate, updateRuta);
 
