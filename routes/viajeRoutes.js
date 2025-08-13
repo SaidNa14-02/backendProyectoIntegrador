@@ -6,8 +6,8 @@ import { createViajeCompartidoValidate, updateViajeCompartidoValidate } from '..
 const router = express.Router();
 
 router.post('/', isauthenticated, createViajeCompartidoValidate, createViajeCompartido);
-router.get('/', getAllViajesCompartidos);
-router.get('/:id', getViajeCompartidoById)
+router.get('/', isauthenticated, getAllViajesCompartidos);
+router.get('/:id', isauthenticated, getViajeCompartidoById)
 router.get('/my/viajes', isauthenticated, getViajeCompartidoByUserId);
 router.delete('/:id', isauthenticated, deleteViajeCompartido);
 router.patch('/:id', isauthenticated, updateViajeCompartidoValidate, updateViajeCompartido);
