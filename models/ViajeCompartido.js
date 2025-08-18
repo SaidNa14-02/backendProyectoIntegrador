@@ -3,10 +3,14 @@ class ViajeCompartido {
   async createViajeCompartido(viaje) {
     try {
       const query = {
-        text: "INSERT INTO viajecompartido (origen, destino, fecha_hora_salida, asientos_ofrecidos, id_conductor) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        text: "INSERT INTO viajecompartido (origen, destino, origen_lat, origen_lon, destino_lat, destino_lon, fecha_hora_salida, asientos_ofrecidos, id_conductor) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
         values: [
           viaje.origen,
           viaje.destino,
+          viaje.origen_lat,
+          viaje.origen_lon,
+          viaje.destino_lat,
+          viaje.destino_lon,
           viaje.fecha_hora_salida,
           viaje.asientos_ofrecidos,
           viaje.id_conductor,
@@ -103,6 +107,10 @@ class ViajeCompartido {
       const updatableFields = [
         "origen",
         "destino",
+        "origen_lat",
+        "origen_lon",
+        "destino_lat",
+        "destino_lon",
         "fecha_hora_salida",
         "asientos_ofrecidos",
         "estado"

@@ -310,3 +310,76 @@ Elimina una reserva.
 *   **Autenticación:** Requerida.
 *   **Parámetros:**
     *   `id` (integer, requerido): ID del viaje del que se quiere eliminar la reserva.
+
+---
+
+### Integración de Mapas (OpenStreetMap - Nominatim)
+
+Este proyecto ha sido extendido para integrar funcionalidades de geocodificación utilizando datos de OpenStreetMap a través del servicio Nominatim. Esto permite convertir direcciones de texto (ej. "Torre Eiffel") en coordenadas geográficas (latitud y longitud) para su almacenamiento y uso en funcionalidades de mapas.
+
+
+#### **Dependencias Adicionales**
+
+*   **`axios`**: Para realizar peticiones HTTP al servicio Nominatim. Instálalo si aún no lo tienes:
+    ```bash
+    npm install axios
+    ```
+
+#### **Implementación**
+
+1.  **Servicio de Geocodificación (`utils/nominatimService.js`):**
+    Se ha creado un nuevo archivo `utils/nominatimService.js` que encapsula la lógica para llamar a la API de Nominatim. Este servicio convierte una dirección de texto en sus coordenadas de latitud y longitud.
+
+    **¡Importante!** Debes actualizar el `User-Agent` en `utils/nominatimService.js` con el nombre de tu aplicación y tu correo electrónico, según la política de uso de Nominatim:
+    ```javascript
+    'User-Agent': 'backendProyectoIntegrador/1.0 (tu-email@example.com)' // ¡Actualiza esto!
+    ```
+
+2.  **Modelos (`models/Ruta.js` y `models/ViajeCompartido.js`):**
+    Los métodos `create` y `updateById` en estos modelos han sido modificados para aceptar y almacenar las nuevas columnas de latitud y longitud en la base de datos.
+
+3.  **Controladores (`controllers/rutaControllers.js` y `controllers/viajeCompartidoController.js`):**
+    Las funciones `createRuta`, `updateRuta`, `createViajeCompartido` y `updateViajeCompartido` ahora utilizan el servicio `nominatimService.js` para geocodificar las direcciones (`punto_inicio`, `punto_destino`, `origen`, `destino`) antes de guardar o actualizar los datos en la base de datos. Si la geocodificación falla, se devolverá un error 400.
+
+#### **Uso**
+
+Al crear o actualizar una ruta o un viaje compartido a través de los endpoints correspondientes, simplemente proporciona las direcciones de inicio/origen y destino como texto. El backend se encargará automáticamente de geocodificarlas y almacenar las coordenadas asociadas.
+
+#### **Atribución**
+
+Este proyecto utiliza datos de OpenStreetMap y el servicio Nominatim para la geocodificación. Al utilizar esta funcionalidad, aceptas las condiciones de uso de OpenStreetMap y Nominatim.
+
+*   **Datos de OpenStreetMap:** © OpenStreetMap contributors. Disponible bajo la [Open Data Commons Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
+*   **Servicio Nominatim:** Proporcionado por la comunidad de OpenStreetMap.
+=======
+
+*   **Autenticación:** Requerida. Solo el conductor puede eliminar su viaje.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+
+---
+
+### Reservas (`/api/reservas`)
+
+#### **POST** `/`
+
+Crea una nueva reserva en un viaje.
+
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `viajeId` (integer, requerido): ID del viaje a reservar.
+
+#### **GET** `/`
+
+Obtiene las reservas del usuario autenticado.
+
+*   **Autenticación:** Requerida.
+
+#### **DELETE** `/:id`
+
+Elimina una reserva.
+
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje del que se quiere eliminar la reserva.
+

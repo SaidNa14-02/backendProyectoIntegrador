@@ -4,14 +4,18 @@ class Ruta {
   async create(nuevaRuta) {
     try {
       const query = {
-        text: `INSERT INTO ruta (titulo, descripcion, punto_inicio, punto_destino, tipo_transporte, creador_id) 
-                       VALUES ($1, $2, $3, $4, $5, $6) 
+        text: `INSERT INTO ruta (titulo, descripcion, punto_inicio, punto_destino, punto_inicio_lat, punto_inicio_lon, punto_destino_lat, punto_destino_lon, tipo_transporte, creador_id) 
+                       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
                        RETURNING *`,
         values: [
           nuevaRuta.titulo,
           nuevaRuta.descripcion,
           nuevaRuta.punto_inicio,
           nuevaRuta.punto_destino,
+          nuevaRuta.punto_inicio_lat,
+          nuevaRuta.punto_inicio_lon,
+          nuevaRuta.punto_destino_lat,
+          nuevaRuta.punto_destino_lon,
           nuevaRuta.tipo_transporte,
           nuevaRuta.creador_id,
         ],
@@ -77,6 +81,10 @@ class Ruta {
         "descripcion",
         "punto_inicio",
         "punto_destino",
+        "punto_inicio_lat",
+        "punto_inicio_lon",
+        "punto_destino_lat",
+        "punto_destino_lon",
         "tipo_transporte",
       ];
       const fieldsToUpdate = Object.keys(updatedBody).filter((key) =>
