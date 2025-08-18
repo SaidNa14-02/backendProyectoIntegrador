@@ -26,26 +26,7 @@ export const createUsuario = async (req, res) => {
 
 
 
-export const getUsuarioById = async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const usuario = await usuarioModel.getById(id);
-    if (!usuario) {
-      return res.status(404).json({
-        message: "Usuario no encontrado",
-      });
-    }
-    res.status(200).json({
-      message: "Usuario obtenido exitosamente",
-      data: usuario,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener el usuario",
-      error: error.message,
-    });
-  }
-};
+
 
 export const deleteUsuario = async (req, res) => {
   try {
