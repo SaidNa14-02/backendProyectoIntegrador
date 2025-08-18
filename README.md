@@ -351,3 +351,35 @@ Este proyecto utiliza datos de OpenStreetMap y el servicio Nominatim para la geo
 
 *   **Datos de OpenStreetMap:** © OpenStreetMap contributors. Disponible bajo la [Open Data Commons Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
 *   **Servicio Nominatim:** Proporcionado por la comunidad de OpenStreetMap.
+=======
+
+*   **Autenticación:** Requerida. Solo el conductor puede eliminar su viaje.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+
+---
+
+### Reservas (`/api/reservas`)
+
+#### **POST** `/`
+
+Crea una nueva reserva en un viaje.
+
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `viajeId` (integer, requerido): ID del viaje a reservar.
+
+#### **GET** `/`
+
+Obtiene las reservas del usuario autenticado.
+
+*   **Autenticación:** Requerida.
+
+#### **DELETE** `/:id`
+
+Elimina una reserva.
+
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje del que se quiere eliminar la reserva.
+
