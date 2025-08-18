@@ -89,7 +89,7 @@ class Ruta {
       }
 
       const setClause = fieldsToUpdate
-        .map((field, index) => `"${field}" = ${index + 1}`)
+        .map((field, index) => `"${field}" = $${index + 1}`)
         .join(", ");
 
       // Prepara los valores para los placeholders
@@ -103,7 +103,7 @@ class Ruta {
 
       const query = {
         // La cláusula WHERE ahora comprueba ambos IDs de forma segura
-        text: `UPDATE ruta SET ${setClause} WHERE id = ${idIndex} AND creador_id = ${creadorIdIndex} RETURNING *`,
+        text: `UPDATE ruta SET ${setClause} WHERE id = $${idIndex} AND creador_id = $${creadorIdIndex} RETURNING *`,
         values: values,
       };
 
