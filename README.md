@@ -310,3 +310,76 @@ Elimina una reserva.
 *   **Autenticación:** Requerida.
 *   **Parámetros:**
     *   `id` (integer, requerido): ID del viaje del que se quiere eliminar la reserva.
+
+---
+
+### Integración de Mapas (OpenStreetMap - Nominatim)
+
+Este proyecto ha sido extendido para integrar funcionalidades de geocodificación utilizando datos de OpenStreetMap a través del servicio Nominatim. Esto permite convertir direcciones de texto (ej. "Torre Eiffel") en coordenadas geográficas (latitud y longitud) para su almacenamiento y uso en funcionalidades de mapas.
+
+#### **Cambios en la Base de Datos**
+
+Se han añadido nuevas columnas para almacenar las coordenadas geográficas en las tablas `ruta` y `viajecompartido`:
+
+*   **Tabla `ruta`:**
+    *   `punto_inicio_lat` (numeric)
+    *   `punto_inicio_lon` (numeric)
+    *   `punto_destino_lat` (numeric)
+    *   `punto_destino_lon` (numeric)
+*   **Tabla `viajecompartido`:**
+    *   `origen_lat` (numeric)
+    *   `origen_lon` (numeric)
+    *   `destino_lat` (numeric)
+    *   `destino_lon` (numeric)
+
+**Para aplicar estos cambios en tu base de datos, ejecuta las siguientes sentencias SQL:**
+
+```sql
+-- Para la tabla 'ruta'
+ALTER TABLE public.ruta
+ADD COLUMN punto_inicio_lat numeric(10, 7),
+ADD COLUMN punto_inicio_lon numeric(10, 7),
+ADD COLUMN punto_destino_lat numeric(10, 7),
+ADD COLUMN punto_destino_lon numeric(10, 7);
+
+-- Para la tabla 'viajecompartido'
+ALTER TABLE public.viajecompartido
+ADD COLUMN origen_lat numeric(10, 7),
+ADD COLUMN origen_lon numeric(10, 7),
+ADD COLUMN destino_lat numeric(10, 7),
+ADD COLUMN destino_lon numeric(10, 7);
+```
+
+#### **Dependencias Adicionales**
+
+*   **`axios`**: Para realizar peticiones HTTP al servicio Nominatim. Instálalo si aún no lo tienes:
+    ```bash
+    npm install axios
+    ```
+
+#### **Implementación**
+
+1.  **Servicio de Geocodificación (`utils/nominatimService.js`):**
+    Se ha creado un nuevo archivo `utils/nominatimService.js` que encapsula la lógica para llamar a la API de Nominatim. Este servicio convierte una dirección de texto en sus coordenadas de latitud y longitud.
+
+    **¡Importante!** Debes actualizar el `User-Agent` en `utils/nominatimService.js` con el nombre de tu aplicación y tu correo electrónico, según la política de uso de Nominatim:
+    ```javascript
+    'User-Agent': 'backendProyectoIntegrador/1.0 (tu-email@example.com)' // ¡Actualiza esto!
+    ```
+
+2.  **Modelos (`models/Ruta.js` y `models/ViajeCompartido.js`):**
+    Los métodos `create` y `updateById` en estos modelos han sido modificados para aceptar y almacenar las nuevas columnas de latitud y longitud en la base de datos.
+
+3.  **Controladores (`controllers/rutaControllers.js` y `controllers/viajeCompartidoController.js`):**
+    Las funciones `createRuta`, `updateRuta`, `createViajeCompartido` y `updateViajeCompartido` ahora utilizan el servicio `nominatimService.js` para geocodificar las direcciones (`punto_inicio`, `punto_destino`, `origen`, `destino`) antes de guardar o actualizar los datos en la base de datos. Si la geocodificación falla, se devolverá un error 400.
+
+#### **Uso**
+
+Al crear o actualizar una ruta o un viaje compartido a través de los endpoints correspondientes, simplemente proporciona las direcciones de inicio/origen y destino como texto. El backend se encargará automáticamente de geocodificarlas y almacenar las coordenadas asociadas.
+
+#### **Atribución**
+
+Este proyecto utiliza datos de OpenStreetMap y el servicio Nominatim para la geocodificación. Al utilizar esta funcionalidad, aceptas las condiciones de uso de OpenStreetMap y Nominatim.
+
+*   **Datos de OpenStreetMap:** © OpenStreetMap contributors. Disponible bajo la [Open Data Commons Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/1-0/).
+*   **Servicio Nominatim:** Proporcionado por la comunidad de OpenStreetMap.

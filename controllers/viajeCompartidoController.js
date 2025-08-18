@@ -1,10 +1,11 @@
 import ViajeCompartido from "../models/ViajeCompartido.js";
 import jwt from "jsonwebtoken";
-import Reserva from '../models/Reserva.js'; // New import
+import Reserva from '../models/Reserva.js'; 
 import { validationResult } from 'express-validator';
+import { geocodeAddress } from '../utils/nominatimService.js';
 
 const viajeCompartidoModel = new ViajeCompartido();
-const reservaModel = new Reserva(); // New instance
+const reservaModel = new Reserva(); 
 
 export const createViajeCompartido = async (req, res) => {
   const errors = validationResult(req);
@@ -18,6 +19,29 @@ export const createViajeCompartido = async (req, res) => {
       ...req.body,
       id_conductor: id_conductor
     };
+
+    // Geocodificar origen
+    if (datosViaje.origen) {
+      const coords = await geocodeAddress(datosViaje.origen);
+      if (coords) {
+        datosViaje.origen_lat = coords.lat;
+        datosViaje.origen_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el origen." });
+      }
+    }
+
+    // Geocodificar destino
+    if (datosViaje.destino) {
+      const coords = await geocodeAddress(datosViaje.destino);
+      if (coords) {
+        datosViaje.destino_lat = coords.lat;
+        datosViaje.destino_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el destino." });
+      }
+    }
+
     const newViaje = await viajeCompartidoModel.createViajeCompartido(datosViaje);
     res.status(201).json({
       message: "Viaje compartido creado con éxito",
@@ -128,6 +152,28 @@ export const updateViajeCompartido = async (req, res) => {
   const viajeId = parseInt(req.params.id);
   const conductorIdDelToken = req.user.id;
   try {
+    // Geocodificar origen si se está actualizando
+    if (req.body.origen) {
+      const coords = await geocodeAddress(req.body.origen);
+      if (coords) {
+        req.body.origen_lat = coords.lat;
+        req.body.origen_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el origen para la actualización." });
+      }
+    }
+
+    // Geocodificar destino si se está actualizando
+    if (req.body.destino) {
+      const coords = await geocodeAddress(req.body.destino);
+      if (coords) {
+        req.body.destino_lat = coords.lat;
+        req.body.destino_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el destino para la actualización." });
+      }
+    }
+
     const viajeActualizado = await viajeCompartidoModel.updateViajeById(
       viajeId,
       req.body,

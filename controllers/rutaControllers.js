@@ -1,5 +1,6 @@
 import Ruta from "../models/Ruta.js";
 import { validationResult } from 'express-validator';
+import { geocodeAddress } from '../utils/nominatimService.js';
 
 const rutaModel = new Ruta();
 
@@ -16,6 +17,29 @@ export const createRuta = async (req, res) => {
       ...req.body,
       creador_id: creadorId,
     };
+
+    // Geocodificar punto_inicio
+    if (datosRuta.punto_inicio) {
+      const coords = await geocodeAddress(datosRuta.punto_inicio);
+      if (coords) {
+        datosRuta.punto_inicio_lat = coords.lat;
+        datosRuta.punto_inicio_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el punto de inicio." });
+      }
+    }
+
+    // Geocodificar punto_destino
+    if (datosRuta.punto_destino) {
+      const coords = await geocodeAddress(datosRuta.punto_destino);
+      if (coords) {
+        datosRuta.punto_destino_lat = coords.lat;
+        datosRuta.punto_destino_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el punto de destino." });
+      }
+    }
+
     const newRuta = await rutaModel.create(datosRuta);
     res.status(201).json({
       message: "Ruta creada exitosamente",
@@ -82,6 +106,28 @@ export const updateRuta = async (req, res) => {
     const rutaId = parseInt(req.params.id);
     const body = req.body;
     const creadorIdDelToken = req.user.id;
+
+    // Geocodificar punto_inicio si se está actualizando
+    if (body.punto_inicio) {
+      const coords = await geocodeAddress(body.punto_inicio);
+      if (coords) {
+        body.punto_inicio_lat = coords.lat;
+        body.punto_inicio_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el punto de inicio para la actualización." });
+      }
+    }
+
+    // Geocodificar punto_destino si se está actualizando
+    if (body.punto_destino) {
+      const coords = await geocodeAddress(body.punto_destino);
+      if (coords) {
+        body.punto_destino_lat = coords.lat;
+        body.punto_destino_lon = coords.lon;
+      } else {
+        return res.status(400).json({ message: "No se pudo geocodificar el punto de destino para la actualización." });
+      }
+    }
 
     const rutaActualizada = await rutaModel.updateById(rutaId, body, creadorIdDelToken);
 
