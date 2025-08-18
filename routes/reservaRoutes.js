@@ -5,6 +5,6 @@ import { isauthenticated } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.post('/', isauthenticated, createReserva);
-router.get('/', isauthenticated, getReservasByUser);;
+router.get('/', isauthenticated, getReservasByUser);
 router.delete('/:id', isauthenticated, deleteReserva);
 export default router;

@@ -29,12 +29,16 @@ export const createRuta = async (req, res) => {
   }
 };
 
+// En controllers/rutaControllers.js
+
 export const getRutas = async (req, res) => {
   try {
-    const rutas = await rutaModel.findAll();
+    const { page, limit } = req.query;
+    const rutasPaginadas = await rutaModel.findAll(page, limit);
+
     res.status(200).json({
       message: "Rutas obtenidas exitosamente",
-      data: rutas,
+      ...rutasPaginadas, 
     });
   } catch (error) {
     res.status(500).json({
@@ -52,7 +56,7 @@ export const deleteRuta = async (req, res) => {
     const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken);
     if (!rutaEliminada) {
       return res.status(404).json({
-        message: "Ruta no encontrada o no eres el cradeador de esta ruta.",
+        message: "Ruta no encontrada o no eres el creador de esta ruta.",
       });
     }
 
@@ -94,6 +98,43 @@ export const updateRuta = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error al actualizar la ruta",
+      error: error.message,
+    });
+  }
+};
+
+export const getRutaById = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const ruta = await rutaModel.findById(id);
+
+    if (!ruta) {
+      return res.status(404).json({ message: "Ruta no encontrada" });
+    }
+    res.status(200).json({
+      message: "Ruta obtenida exitosamente",
+      data: ruta,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener la ruta",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getMyRutas = async (req, res) => {
+  try {
+    const creadorId = req.user.id; 
+    const rutas = await rutaModel.findByCreatorId(creadorId);
+    res.status(200).json({
+      message: "Mis rutas obtenidas exitosamente",
+      data: rutas,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al obtener mis rutas",
       error: error.message,
     });
   }
