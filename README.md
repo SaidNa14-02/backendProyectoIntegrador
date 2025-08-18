@@ -1,4 +1,3 @@
-
 # backendProyectoIntegrador
 
 ## Descripción del Proyecto
@@ -21,198 +20,293 @@ Este proyecto es el backend de una aplicación para compartir viajes en vehícul
 4.  Correr las migraciones de la base de datos (si aplica).
 5.  Iniciar el servidor con `npm start` o `node index.js`.
 
-## Modelos
+## Endpoints de la API
 
-### Usuario
+A continuación se detallan los endpoints disponibles en la API.
 
-*   **Archivo:** `models/Usuario.js`
-*   **Campos:**
-    *   `id` (PK)
-    *   `nombre`
-    *   `apellido`
-    *   `correo` (único)
-    *   `cedula` (único)
-    *   `password_hash`
-    *   `conductor` (booleano)
-    *   `placa`
-    *   `capacidadvehiculo`
-*   **Métodos:**
-    *   `create(nuevoUsuario)`: Crea un nuevo usuario.
-    *   `findAll()`: Devuelve todos los usuarios.
-    *   `getById(id)`: Devuelve un usuario por su ID.
-    *   `deleteById(id)`: Elimina un usuario por su ID.
-    *   `updateById(id, updatedBody)`: Actualiza un usuario por su ID.
-    *   `updatePasswordById(id, newPasswordHash)`: Actualiza la contraseña de un usuario.
-    *   `checkCredential(email, password)`: Verifica las credenciales de un usuario.
-    *   `findByEmail(email)`: Busca un usuario por su correo.
+### Autenticación
 
-### Ruta
+La mayoría de los endpoints requieren autenticación mediante un JSON Web Token (JWT). Para autenticarse, el usuario debe primero registrarse y luego iniciar sesión. El token JWT devuelto en el inicio de sesión debe ser incluido en la cabecera `Authorization` de las solicitudes subsiguientes como un "Bearer token".
 
-*   **Archivo:** `models/Ruta.js`
-*   **Campos:**
-    *   `id` (PK)
-    *   `titulo`
-    *   `descripcion`
-    *   `punto_inicio`
-    *   `punto_destino`
-    *   `tipo_transporte`
-    *   `creador_id` (FK a `usuario.id`)
-*   **Métodos:**
-    *   `create(nuevaRuta)`: Crea una nueva ruta.
-    *   `findAll()`: Devuelve todas las rutas.
-    *   `findById(id)`: Devuelve una ruta por su ID.
-    *   `updateById(id, updatedBody, creadorId)`: Actualiza una ruta por su ID.
-    *   `deleteById(rutaId, creadorId)`: Elimina una ruta por su ID.
+`Authorization: Bearer <token>`
 
-### ViajeCompartido
+---
 
-*   **Archivo:** `models/ViajeCompartido.js`
-*   **Campos:**
-    *   `id` (PK)
-    *   `origen`
-    *   `destino`
-    *   `fecha_hora_salida`
-    *   `asientos_ofrecidos`
-    *   `id_conductor` (FK a `usuario.id`)
-    *   `estado` (ENUM: 'PROGRAMADO', 'EN_CURSO', 'FINALIZADO', 'CANCELADO')
-*   **Métodos:**
-    *   `createViajeCompartido(viaje)`: Crea un nuevo viaje compartido.
-    *   `getViajesCompartidos()`: Devuelve todos los viajes compartidos.
-    *   `getById(id)`: Devuelve un viaje compartido por su ID.
-    *   `getViajeCompartidoByUserId(userId)`: Devuelve los viajes compartidos de un usuario.
-    *   `deleteViajeCompartidoById(id)`: Elimina un viaje compartido por su ID.
-    *   `updateViajeById(id, updatedBody, conductorId)`: Actualiza un viaje compartido por su ID.
-    *   `updateStatus(viajeId, nuevoEstado)`: Actualiza el estado de un viaje.
+### Usuarios (`/api/usuarios`)
 
-### Reserva
+#### **POST** `/register`
 
-*   **Archivo:** `models/Reserva.js`
-*   **Campos:**
-    *   `id` (PK)
-    *   `viaje_id` (FK a `viajecompartido.id`)
-    *   `pasajero_id` (FK a `usuario.id`)
-*   **Métodos:**
-    *   `create(viajeId, pasajeroId)`: Crea una nueva reserva.
-    *   `findByPasajeroId(pasajeroId)`: Devuelve las reservas de un pasajero.
-    *   `findByViajeId(viajeId)`: Devuelve las reservas de un viaje.
-    *   `delete(viajeId, pasajeroId)`: Elimina una reserva.
-    *   `getAllUsersInReserve(viajeId)`: Devuelve los usuarios de una reserva.
+Registra un nuevo usuario en el sistema.
 
-### RutasGuardadas
+*   **Autenticación:** No requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `nombre` (string, requerido): Nombre del usuario.
+    *   `apellido` (string, requerido): Apellido del usuario.
+    *   `correo` (string, requerido): Correo electrónico institucional (`@puce.edu.ec`).
+    *   `cedula` (string, requerido): Cédula de identidad.
+    *   `password` (string, requerido): Contraseña (mínimo 6 caracteres, con mayúsculas, minúsculas y números).
+    *   `conductor` (boolean, opcional): Indica si el usuario es conductor.
+    *   `placa` (string, opcional): Placa del vehículo (requerido si `conductor` es `true`).
+    *   `capacidadvehiculo` (integer, opcional): Capacidad del vehículo (requerido si `conductor` es `true`).
+*   **Ejemplo de Solicitud:**
+    ```json
+    {
+        "nombre": "Juan",
+        "apellido": "Perez",
+        "correo": "juan.perez@puce.edu.ec",
+        "cedula": "1712345678",
+        "password": "Password123",
+        "conductor": true,
+        "placa": "ABC-1234",
+        "capacidadvehiculo": 4
+    }
+    ```
 
-*   **Archivo:** `models/RutasGuardadas.js`
-*   **Campos:**
-    *   `usuario_id` (PK, FK a `usuario.id`)
-    *   `ruta_id` (PK, FK a `ruta.id`)
-*   **Métodos:**
-    *   `guardarRuta(rutaId, usuarioId)`: Guarda una ruta como favorita para un usuario.
-    *   `findRutasGuardadasByUsuario(usuarioId)`: Devuelve todas las rutas guardadas por un usuario.
-    *   `eliminarRutaGuardada(rutaId, usuarioId)`: Elimina una ruta guardada por un usuario.
-    *   `findRutaGuardada(rutaId, usuarioId)`: Verifica si una ruta específica está guardada por un usuario.
+#### **POST** `/login`
 
-## Controladores
+Inicia sesión de un usuario.
 
-### usuarioController.js
+*   **Autenticación:** No requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `correo` (string, requerido): Correo electrónico del usuario.
+    *   `password` (string, requerido): Contraseña del usuario.
+*   **Ejemplo de Solicitud:**
+    ```json
+    {
+        "correo": "juan.perez@puce.edu.ec",
+        "password": "Password123"
+    }
+    ```
+*   **Respuesta Exitosa:**
+    ```json
+    {
+        "message": "login exitoso",
+        "token": "ey..."
+    }
+    ```
 
-*   `createUsuario`: Crea un nuevo usuario.
-*   `getAllUsuarios`: Obtiene todos los usuarios.
-*   `getUsuarioById`: Obtiene un usuario por su ID.
-*   `deleteUsuario`: Elimina un usuario.
-*   `updateUsuario`: Actualiza un usuario.
-*   `loginUsuario`: Inicia sesión de un usuario.
-*   `changePassword`: Cambia la contraseña de un usuario.
-*   `getMyProfile`: Obtiene el perfil del usuario autenticado.
-*   `getPublicProfile`: Obtiene el perfil público de un usuario.
+#### **GET** `/me/profile`
 
-### rutaControllers.js
+Obtiene el perfil del usuario autenticado.
 
-*   `createRuta`: Crea una nueva ruta.
-*   `getRutas`: Obtiene todas las rutas.
-*   `deleteRuta`: Elimina una ruta.
-*   `updateRuta`: Actualiza una ruta.
+*   **Autenticación:** Requerida.
 
-### viajeCompartidoController.js
+#### **PATCH** `/me/password`
 
-*   `createViajeCompartido`: Crea un nuevo viaje compartido.
-*   `getAllViajesCompartidos`: Obtiene todos los viajes compartidos.
-*   `getViajeCompartidoByUserId`: Obtiene los viajes compartidos de un usuario.
-*   `getViajeCompartidoById`: Obtiene un viaje compartido por su ID.
-*   `deleteViajeCompartido`: Elimina un viaje compartido.
-*   `updateViajeCompartido`: Actualiza un viaje compartido.
-*   `listarPasajerosDeRuta`: Lista los pasajeros de un viaje.
+Cambia la contraseña del usuario autenticado.
 
-### reservaController.js
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `newPassword` (string, requerido): Nueva contraseña.
 
-*   `createReserva`: Crea una nueva reserva.
-*   `getReservasByUser`: Obtiene las reservas de un usuario.
-*   `deleteReserva`: Elimina una reserva.
+#### **PATCH** `/:id`
 
-### rutaFavoritaController.js
+Actualiza el perfil de un usuario.
 
-*   `guardarRutaFavorita`: Guarda una ruta como favorita para un usuario.
-*   `obtenerRutasFavoritas`: Obtiene todas las rutas favoritas de un usuario.
-*   `eliminarRutaFavorita`: Elimina una ruta favorita de un usuario.
-*   `checkRutaFavorita`: Verifica si una ruta específica está guardada por un usuario.
+*   **Autenticación:** Requerida. El usuario solo puede actualizar su propio perfil.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del usuario.
+*   **Cuerpo de la Solicitud:** Campos opcionales a actualizar (ver `POST /register`).
 
-## Rutas
+#### **DELETE** `/:id`
 
-### Rutas de Usuario (`/api/usuarios`)
+Elimina un usuario.
 
-*   `POST /register`: Crea un nuevo usuario.
-*   `GET /`: Obtiene todos los usuarios (requiere autenticación).
-*   `DELETE /:id`: Elimina un usuario (requiere autenticación).
-*   `PATCH /:id`: Actualiza un usuario (requiere autenticación).
-*   `PATCH /me/password`: Cambia la contraseña del usuario autenticado (requiere autenticación).
-*   `GET /me/profile`: Obtiene el perfil del usuario autenticado (requiere autenticación).
-*   `POST /login`: Inicia sesión de un usuario.
-*   `GET /userprofile/:id`: Obtiene el perfil público de un usuario (requiere autenticación).
+*   **Autenticación:** Requerida. El usuario solo puede eliminar su propio perfil.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del usuario.
 
-### Rutas de Ruta (`/api/rutas`)
+---
 
-*   `POST /`: Crea una nueva ruta (requiere autenticación).
-*   `GET /`: Obtiene todas las rutas.
-*   `DELETE /:id`: Elimina una ruta (requiere autenticación).
-*   `PUT /:id`: Actualiza una ruta (requiere autenticación).
+### Rutas (`/api/rutas`)
 
-### Rutas de ViajeCompartido (`/api/viajes`)
+#### **POST** `/`
 
-*   `POST /`: Crea un nuevo viaje compartido (requiere autenticación).
-*   `GET /`: Obtiene todos los viajes compartidos.
-*   `GET /:id`: Obtiene un viaje compartido por su ID.
-*   `GET /my/viajes`: Obtiene los viajes compartidos del usuario autenticado (requiere autenticación).
-*   `DELETE /:id`: Elimina un viaje compartido (requiere autenticación).
-*   `PATCH /:id`: Actualiza un viaje compartido (requiere autenticación).
-*   `GET /:id/passengers`: Lista los pasajeros de un viaje (requiere autenticación).
+Crea una nueva ruta.
 
-### Rutas de Reserva (`/api/reservas`)
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `titulo` (string, requerido): Título de la ruta.
+    *   `descripcion` (string, requerido): Descripción de la ruta.
+    *   `punto_inicio` (string, requerido): Punto de inicio de la ruta.
+    *   `punto_destino` (string, requerido): Punto de destino de la ruta.
+    *   `tipo_transporte` (enum, requerido): "A pie", "Transporte publico", "Auto".
+*   **Ejemplo de Solicitud:**
+    ```json
+    {
+        "titulo": "Ruta a la universidad",
+        "descripcion": "Ruta desde mi casa a la PUCE",
+        "punto_inicio": "Mi casa",
+        "punto_destino": "PUCE",
+        "tipo_transporte": "Auto"
+    }
+    ```
 
-*   `POST /register`: Crea una nueva reserva (requiere autenticación).
-*   `GET /`: Obtiene las reservas del usuario autenticado (requiere autenticación).
-*   `DELETE /:id`: Elimina una reserva (requiere autenticación).
+#### **GET** `/`
 
-### Rutas de Rutas Guardadas (`/api/rutas-favoritas`)
+Obtiene todas las rutas de forma paginada.
 
-*   `POST /`: Guarda una ruta como favorita para el usuario autenticado (requiere autenticación).
-*   `GET /`: Obtiene todas las rutas favoritas del usuario autenticado (requiere autenticación).
-*   `DELETE /:rutaId`: Elimina una ruta favorita del usuario autenticado (requiere autenticación).
-*   `GET /check/:rutaId`: Verifica si una ruta específica está guardada por el usuario autenticado (requiere autenticación).
+*   **Autenticación:** Requerida.
+*   **Query Params:**
+    *   `page` (integer, opcional, default: 1): Número de página.
+    *   `limit` (integer, opcional, default: 10): Número de resultados por página.
 
-## Middleware
+#### **GET** `/me`
 
-### authMiddleware.js
+Obtiene todas las rutas creadas por el usuario autenticado.
 
-*   `isauthenticated`: Verifica que el usuario esté autenticado mediante un JSON Web Token.
+*   **Autenticación:** Requerida.
 
-## Validadores
+#### **GET** `/:id`
 
-### usuarioValidation.js
+Obtiene una ruta por su ID.
 
-*   `usuarioValidate`: Valida los campos para crear un nuevo usuario.
-*   `updateProfileValidate`: Valida los campos para actualizar un usuario.
-*   `changePasswordValidate`: Valida los campos para cambiar la contraseña.
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID de la ruta.
 
-### rutaFavoritaValidation.js
+#### **PUT** `/:id`
 
-*   `guardarRutaFavoritaValidate`: Valida los campos para guardar una ruta favorita.
-*   `eliminarRutaFavoritaValidate`: Valida los campos para eliminar una ruta favorita.
-*   `checkRutaFavoritaValidate`: Valida los campos para verificar una ruta favorita.
+Actualiza una ruta.
+
+*   **Autenticación:** Requerida. El usuario solo puede actualizar sus propias rutas.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID de la ruta.
+*   **Cuerpo de la Solicitud:** Campos opcionales a actualizar (ver `POST /`).
+
+#### **DELETE** `/:id`
+
+Elimina una ruta.
+
+*   **Autenticación:** Requerida. El usuario solo puede eliminar sus propias rutas.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID de la ruta.
+
+---
+
+### Rutas Favoritas (`/api/rutas-favoritas`)
+
+#### **POST** `/`
+
+Guarda una ruta como favorita.
+
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `rutaId` (integer, requerido): ID de la ruta a guardar.
+
+#### **GET** `/`
+
+Obtiene las rutas favoritas del usuario autenticado.
+
+*   **Autenticación:** Requerida.
+
+#### **GET** `/check/:rutaId`
+
+Verifica si una ruta está guardada como favorita.
+
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `rutaId` (integer, requerido): ID de la ruta.
+
+#### **DELETE** `/:rutaId`
+
+Elimina una ruta de favoritos.
+
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `rutaId` (integer, requerido): ID de la ruta.
+
+---
+
+### Viajes Compartidos (`/api/viajes`)
+
+#### **POST** `/`
+
+Crea un nuevo viaje compartido.
+
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `origen` (string, requerido): Origen del viaje.
+    *   `destino` (string, requerido): Destino del viaje.
+    *   `fecha_hora_salida` (datetime, requerido): Fecha y hora de salida (formato ISO8601).
+    *   `asientos_ofrecidos` (integer, requerido): Número de asientos disponibles.
+*   **Ejemplo de Solicitud:**
+    ```json
+    {
+        "origen": "Mi casa",
+        "destino": "PUCE",
+        "fecha_hora_salida": "2025-09-01T07:00:00Z",
+        "asientos_ofrecidos": 3
+    }
+    ```
+
+#### **GET** `/`
+
+Obtiene todos los viajes compartidos.
+
+*   **Autenticación:** Requerida.
+
+#### **GET** `/my/viajes`
+
+Obtiene los viajes compartidos creados por el usuario autenticado.
+
+*   **Autenticación:** Requerida.
+
+#### **GET** `/:id`
+
+Obtiene un viaje compartido por su ID.
+
+*   **Autencticación:** Requerida.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+
+#### **GET** `/:id/passengers`
+
+Lista los pasajeros de un viaje.
+
+*   **Autenticación:** Requerida. Solo el conductor del viaje puede ver los pasajeros.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+
+#### **PATCH** `/:id`
+
+Actualiza un viaje compartido.
+
+*   **Autenticación:** Requerida. Solo el conductor puede actualizar su viaje.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+*   **Cuerpo de la Solicitud:** Campos opcionales a actualizar (ver `POST /`). También se puede actualizar el `estado` (enum: 'PROGRAMADO', 'EN_CURSO', 'FINALIZADO', 'CANCELADO').
+
+#### **DELETE** `/:id`
+
+Elimina un viaje compartido.
+
+*   **Autenticación:** Requerida. Solo el conductor puede eliminar su viaje.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje.
+
+---
+
+### Reservas (`/api/reservas`)
+
+#### **POST** `/`
+
+Crea una nueva reserva en un viaje.
+
+*   **Autenticación:** Requerida.
+*   **Cuerpo de la Solicitud:**
+    *   `viajeId` (integer, requerido): ID del viaje a reservar.
+
+#### **GET** `/`
+
+Obtiene las reservas del usuario autenticado.
+
+*   **Autenticación:** Requerida.
+
+#### **DELETE** `/:id`
+
+Elimina una reserva.
+
+*   **Autenticación:** Requerida.
+*   **Parámetros:**
+    *   `id` (integer, requerido): ID del viaje del que se quiere eliminar la reserva.
