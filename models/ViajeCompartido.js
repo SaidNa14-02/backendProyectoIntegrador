@@ -116,7 +116,7 @@ class ViajeCompartido {
       }
 
       const setClause = fieldsToUpdate
-        .map((field, index) => `"${field}" = ${index + 1}`)
+        .map((field, index) => `"${field}" = $${index + 1}`)
         .join(", ");
 
       const values = fieldsToUpdate.map((field) => updatedBody[field]);
@@ -127,7 +127,7 @@ class ViajeCompartido {
       const conductorIdIndex = values.length;
 
       const query = {
-        text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idIndex} AND id_conductor = ${conductorIdIndex} RETURNING *`,
+        text: `UPDATE viajecompartido SET ${setClause} WHERE id = $${idIndex} AND id_conductor = $${conductorIdIndex} RETURNING *`,
         values: values,
       };
 
