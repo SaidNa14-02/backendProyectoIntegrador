@@ -317,38 +317,6 @@ Elimina una reserva.
 
 Este proyecto ha sido extendido para integrar funcionalidades de geocodificación utilizando datos de OpenStreetMap a través del servicio Nominatim. Esto permite convertir direcciones de texto (ej. "Torre Eiffel") en coordenadas geográficas (latitud y longitud) para su almacenamiento y uso en funcionalidades de mapas.
 
-#### **Cambios en la Base de Datos**
-
-Se han añadido nuevas columnas para almacenar las coordenadas geográficas en las tablas `ruta` y `viajecompartido`:
-
-*   **Tabla `ruta`:**
-    *   `punto_inicio_lat` (numeric)
-    *   `punto_inicio_lon` (numeric)
-    *   `punto_destino_lat` (numeric)
-    *   `punto_destino_lon` (numeric)
-*   **Tabla `viajecompartido`:**
-    *   `origen_lat` (numeric)
-    *   `origen_lon` (numeric)
-    *   `destino_lat` (numeric)
-    *   `destino_lon` (numeric)
-
-**Para aplicar estos cambios en tu base de datos, ejecuta las siguientes sentencias SQL:**
-
-```sql
--- Para la tabla 'ruta'
-ALTER TABLE public.ruta
-ADD COLUMN punto_inicio_lat numeric(10, 7),
-ADD COLUMN punto_inicio_lon numeric(10, 7),
-ADD COLUMN punto_destino_lat numeric(10, 7),
-ADD COLUMN punto_destino_lon numeric(10, 7);
-
--- Para la tabla 'viajecompartido'
-ALTER TABLE public.viajecompartido
-ADD COLUMN origen_lat numeric(10, 7),
-ADD COLUMN origen_lon numeric(10, 7),
-ADD COLUMN destino_lat numeric(10, 7),
-ADD COLUMN destino_lon numeric(10, 7);
-```
 
 #### **Dependencias Adicionales**
 
