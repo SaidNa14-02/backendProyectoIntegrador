@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.post('/', isauthenticated, createViajeCompartidoValidate, createViajeCompartido);
 router.get('/', isauthenticated, getAllViajesCompartidos);
-router.get('/:id', isauthenticated, getViajeCompartidoById)
 router.get('/my/viajes', isauthenticated, getViajeCompartidoByUserId);
+router.get('/:id', isauthenticated, getViajeCompartidoById)
 router.delete('/:id', isauthenticated, deleteViajeCompartido);
 router.patch('/:id', isauthenticated, updateViajeCompartidoValidate, updateViajeCompartido);
 router.get('/:id/passengers', isauthenticated, listarPasajerosDeRuta); // New route

@@ -7,7 +7,7 @@ const viajeModel = new ViajeCompartido();
 export const createReserva = async (req, res) => {
     try {
         const pasajeroId = parseInt(req.user.id);
-        const viajeId = parseInt(req.params.id, 10); 
+        const viajeId = parseInt(req.body.viajeId, 10); 
 
         if (!viajeId) {
             return res.status(400).json({ message: "El ID del viaje es requerido." });
