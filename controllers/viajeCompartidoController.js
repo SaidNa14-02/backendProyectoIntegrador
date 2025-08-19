@@ -1,3 +1,4 @@
+import pool from '../src/db.js';
 import ViajeCompartido from "../models/ViajeCompartido.js";
 import jwt from "jsonwebtoken";
 import Reserva from '../models/Reserva.js'; 

@@ -1,3 +1,4 @@
+import pool from '../src/db.js';
 import Ruta from "../models/Ruta.js";
 import { validationResult } from 'express-validator';
 import { geocodeAddress } from '../utils/nominatimService.js';

@@ -1,3 +1,4 @@
+import pool from '../src/db.js';
 import Reserva from '../models/Reserva.js';
 import ViajeCompartido from '../models/ViajeCompartido.js';
 

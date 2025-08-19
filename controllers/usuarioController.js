@@ -1,4 +1,5 @@
 import Usuario from "../models/Usuario.js";
+import pool from '../src/db.js'; // Importación única y limpia
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
@@ -38,9 +39,6 @@ export const createUsuario = async (req, res) => {
     }
   }
 };
-
-
-
 
 
 export const deleteUsuario = async (req, res) => {
@@ -249,4 +247,3 @@ export const getMyProfile = async (req, res) => {
   }
 
 }
-
