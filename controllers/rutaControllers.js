@@ -18,8 +18,8 @@ export const createRuta = async (req, res) => {
       creador_id: creadorId,
     };
 
-    // Geocodificar punto_inicio
-    if (datosRuta.punto_inicio) {
+    // Geocodificar punto_inicio si no se proporcionan coordenadas
+    if (datosRuta.punto_inicio && (datosRuta.punto_inicio_lat == null || datosRuta.punto_inicio_lon == null)) {
       const coords = await geocodeAddress(datosRuta.punto_inicio);
       if (coords) {
         datosRuta.punto_inicio_lat = coords.lat;
@@ -29,8 +29,8 @@ export const createRuta = async (req, res) => {
       }
     }
 
-    // Geocodificar punto_destino
-    if (datosRuta.punto_destino) {
+    // Geocodificar punto_destino si no se proporcionan coordenadas
+    if (datosRuta.punto_destino && (datosRuta.punto_destino_lat == null || datosRuta.punto_destino_lon == null)) {
       const coords = await geocodeAddress(datosRuta.punto_destino);
       if (coords) {
         datosRuta.punto_destino_lat = coords.lat;
@@ -107,8 +107,8 @@ export const updateRuta = async (req, res) => {
     const body = req.body;
     const creadorIdDelToken = req.user.id;
 
-    // Geocodificar punto_inicio si se está actualizando
-    if (body.punto_inicio) {
+    // Geocodificar punto_inicio si se está actualizando y no se proporcionan coordenadas
+    if (body.punto_inicio && (body.punto_inicio_lat == null || body.punto_inicio_lon == null)) {
       const coords = await geocodeAddress(body.punto_inicio);
       if (coords) {
         body.punto_inicio_lat = coords.lat;
@@ -118,8 +118,8 @@ export const updateRuta = async (req, res) => {
       }
     }
 
-    // Geocodificar punto_destino si se está actualizando
-    if (body.punto_destino) {
+    // Geocodificar punto_destino si se está actualizando y no se proporcionan coordenadas
+    if (body.punto_destino && (body.punto_destino_lat == null || body.punto_destino_lon == null)) {
       const coords = await geocodeAddress(body.punto_destino);
       if (coords) {
         body.punto_destino_lat = coords.lat;

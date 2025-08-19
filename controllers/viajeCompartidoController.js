@@ -20,8 +20,8 @@ export const createViajeCompartido = async (req, res) => {
       id_conductor: id_conductor
     };
 
-    // Geocodificar origen
-    if (datosViaje.origen) {
+    // Geocodificar origen si no se proporcionan coordenadas
+    if (datosViaje.origen && (datosViaje.origen_lat == null || datosViaje.origen_lon == null)) {
       const coords = await geocodeAddress(datosViaje.origen);
       if (coords) {
         datosViaje.origen_lat = coords.lat;
@@ -31,8 +31,8 @@ export const createViajeCompartido = async (req, res) => {
       }
     }
 
-    // Geocodificar destino
-    if (datosViaje.destino) {
+    // Geocodificar destino si no se proporcionan coordenadas
+    if (datosViaje.destino && (datosViaje.destino_lat == null || datosViaje.destino_lon == null)) {
       const coords = await geocodeAddress(datosViaje.destino);
       if (coords) {
         datosViaje.destino_lat = coords.lat;
@@ -152,8 +152,8 @@ export const updateViajeCompartido = async (req, res) => {
   const viajeId = parseInt(req.params.id);
   const conductorIdDelToken = req.user.id;
   try {
-    // Geocodificar origen si se está actualizando
-    if (req.body.origen) {
+    // Geocodificar origen si se está actualizando y no se proporcionan coordenadas
+    if (req.body.origen && (req.body.origen_lat == null || req.body.origen_lon == null)) {
       const coords = await geocodeAddress(req.body.origen);
       if (coords) {
         req.body.origen_lat = coords.lat;
@@ -163,8 +163,8 @@ export const updateViajeCompartido = async (req, res) => {
       }
     }
 
-    // Geocodificar destino si se está actualizando
-    if (req.body.destino) {
+    // Geocodificar destino si se está actualizando y no se proporcionan coordenadas
+    if (req.body.destino && (req.body.destino_lat == null || req.body.destino_lon == null)) {
       const coords = await geocodeAddress(req.body.destino);
       if (coords) {
         req.body.destino_lat = coords.lat;
