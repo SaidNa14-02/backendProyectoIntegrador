@@ -10,7 +10,12 @@ export const createReserva = async (req, res) => {
     try {
         client = await pool.connect();
         await client.query('BEGIN');
-        await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+        const userIdForAudit = req.user && req.user.id ? parseInt(req.user.id, 10) : null;
+        if (userIdForAudit === null) {
+            await client.query('SET auditoria.usuario_id = NULL');
+        } else {
+            await client.query('SET auditoria.usuario_id = $1', [userIdForAudit]);
+        }
 
         const pasajeroId = parseInt(req.user.id);
         const viajeId = parseInt(req.body.viajeId, 10); 
@@ -87,7 +92,12 @@ export const deleteReserva = async (req, res) => {
     try {
         client = await pool.connect();
         await client.query('BEGIN');
-        await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+        const userIdForAudit = req.user && req.user.id ? parseInt(req.user.id, 10) : null;
+        if (userIdForAudit === null) {
+            await client.query('SET auditoria.usuario_id = NULL');
+        } else {
+            await client.query('SET auditoria.usuario_id = $1', [userIdForAudit]);
+        }
 
         const viajeId = parseInt(req.params.id, 10); 
         const pasajeroId = req.user.id; 

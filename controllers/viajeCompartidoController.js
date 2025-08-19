@@ -18,7 +18,12 @@ export const createViajeCompartido = async (req, res) => {
   try {
     client = await pool.connect();
     await client.query('BEGIN');
-    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+    const userIdForAudit = req.user && req.user.id ? parseInt(req.user.id, 10) : null;
+    if (userIdForAudit === null) {
+      await client.query('SET auditoria.usuario_id = NULL');
+    } else {
+      await client.query('SET auditoria.usuario_id = $1', [userIdForAudit]);
+    }
 
     const id_conductor = req.user.id;
     const datosViaje = {
@@ -138,7 +143,12 @@ export const deleteViajeCompartido = async (req, res) => {
   try {
     client = await pool.connect();
     await client.query('BEGIN');
-    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+    const userIdForAudit = req.user && req.user.id ? parseInt(req.user.id, 10) : null;
+    if (userIdForAudit === null) {
+      await client.query('SET auditoria.usuario_id = NULL');
+    } else {
+      await client.query('SET auditoria.usuario_id = $1', [userIdForAudit]);
+    }
 
     const viajeId = parseInt(req.params.id);
     const conductorIdDelToken = req.user.id;
@@ -189,7 +199,12 @@ export const updateViajeCompartido = async (req, res) => {
   try {
     client = await pool.connect();
     await client.query('BEGIN');
-    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+    const userIdForAudit = req.user && req.user.id ? parseInt(req.user.id, 10) : null;
+    if (userIdForAudit === null) {
+      await client.query('SET auditoria.usuario_id = NULL');
+    } else {
+      await client.query('SET auditoria.usuario_id = $1', [userIdForAudit]);
+    }
 
     // Geocodificar origen si se está actualizando y no se proporcionan coordenadas
     if (req.body.origen && (req.body.origen_lat == null || req.body.origen_lon == null)) {
