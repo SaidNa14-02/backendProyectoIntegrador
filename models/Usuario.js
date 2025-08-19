@@ -82,7 +82,7 @@ async updateById(id, updatedBody, client = pool) {
         values.push(id);
 
         const query = {
-            text: `UPDATE usuario SET ${setClause} WHERE id = ${idPlaceholderIndex} RETURNING *`,
+            text: `UPDATE usuario SET ${setClause} WHERE id = ${idIndex} RETURNING *`,
             values: values
         };
         

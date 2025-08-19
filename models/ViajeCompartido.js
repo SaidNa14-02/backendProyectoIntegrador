@@ -136,7 +136,7 @@ class ViajeCompartido {
       values.push(conductorId);
 
       const query = {
-        text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idPlaceholderIndex} AND id_conductor = ${conductorIdPlaceholderIndex} RETURNING *`,
+        text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idIndex} AND id_conductor = ${conductorIdIndex} RETURNING *`,
         values: values,
       };
 
