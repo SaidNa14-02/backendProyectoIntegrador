@@ -1,13 +1,13 @@
 import pool from "../src/db.js";
 
 class Reserva {
-    async create(viajeId, pasajeroId) {
+    async create(viajeId, pasajeroId, client = pool) {
         try {
             const query = {
                 text: `INSERT INTO reserva (viaje_id, pasajero_id) VALUES ($1, $2) RETURNING *`,
                 values: [viajeId, pasajeroId]
             };
-            const result = await pool.query(query);
+            const result = await client.query(query);
             return result.rows[0];
         } catch (error) {
             console.error("Error al crear la reserva: ", error);
@@ -45,13 +45,13 @@ class Reserva {
         }
     }
 
-    async delete(viajeId, pasajeroId) {
+    async delete(viajeId, pasajeroId, client = pool) {
         try {
             const query = {
                 text: `DELETE FROM reserva WHERE viaje_id = $1 AND pasajero_id = $2 RETURNING *`,
                 values: [viajeId, pasajeroId]
             };
-            const result = await pool.query(query);
+            const result = await client.query(query);
             return result.rows[0];
         } catch (error) {
             console.error("Error al eliminar la reserva: ", error);

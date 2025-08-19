@@ -2,7 +2,7 @@ import pool from "../src/db.js";
 import bcrypt from "bcryptjs";
 
 class Usuario {
-  async create(nuevoUsuario) {
+  async create(nuevoUsuario, client = pool) {
     try {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(nuevoUsuario.password, salt);
@@ -19,7 +19,7 @@ class Usuario {
           hashedPassword,
         ],
       };
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("Error al crear usuario: ", error);
@@ -47,13 +47,13 @@ class Usuario {
     }
   }
 
-  async deleteById(id) {
+  async deleteById(id, client = pool) {
     try {
       const query = {
         text: `DELETE FROM usuario WHERE id=$1 RETURNING *`,
         values: [id],
       };
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("No se ha podido eliminar el registro ", error);
@@ -62,7 +62,7 @@ class Usuario {
   }
 
 
-async updateById(id, updatedBody) {
+async updateById(id, updatedBody, client = pool) {
     try {
         const updatableFields = ['nombre', 'apellido', 'correo', 'cedula', 'conductor', 'placa', 'capacidadvehiculo'];
         const fieldsToUpdate = Object.keys(updatedBody).filter(key => updatableFields.includes(key));
@@ -72,7 +72,7 @@ async updateById(id, updatedBody) {
         }
 
         const setClause = fieldsToUpdate
-            .map((field, index) => `"${field}" = $${index + 1}`)
+            .map((field, index) => `"${field}" = ${index + 1}`)
             .join(', ');
 
         const values = fieldsToUpdate.map(field => updatedBody[field]);
@@ -81,11 +81,11 @@ async updateById(id, updatedBody) {
         const idIndex = values.length;
 
         const query = {
-            text: `UPDATE usuario SET ${setClause} WHERE id = $${idIndex} RETURNING *`,
+            text: `UPDATE usuario SET ${setClause} WHERE id = ${idIndex} RETURNING *`,
             values: values
         };
         
-        const result = await pool.query(query);
+        const result = await client.query(query);
         if (result.rows[0]) {
             delete result.rows[0].password_hash;
         }
@@ -97,13 +97,13 @@ async updateById(id, updatedBody) {
     }
 }
 
-async updatePasswordById(id, newPasswordHash) {
+async updatePasswordById(id, newPasswordHash, client = pool) {
     try {
         const query = {
             text: 'UPDATE usuario SET password_hash = $1 WHERE id = $2 RETURNING id, correo',
             values: [newPasswordHash, id]
         };
-        const result = await pool.query(query);
+        const result = await client.query(query);
         return result.rows[0];
     } catch (error) {
         console.error("Error al actualizar la contraseña:", error);
