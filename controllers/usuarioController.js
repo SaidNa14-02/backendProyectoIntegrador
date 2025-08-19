@@ -10,17 +10,32 @@ export const createUsuario = async (req, res) => {
     return res.status(400).json({errors: errors.array()})
   }
 
+  let client;
   try {
-    const newUsuario = await usuarioModel.create(req.body);
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user ? req.user.id : null]); // Use req.user.id if available, else null
+
+    const newUsuario = await usuarioModel.create(req.body, client);
+    
+    await client.query('COMMIT');
+
     res.status(201).json({
       message: "Usuario creado exitosamente",
       data: newUsuario,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al crear el usuario",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -29,33 +44,49 @@ export const createUsuario = async (req, res) => {
 
 
 export const deleteUsuario = async (req, res) => {
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const userIdFromToken = req.user.id;
     const userIdFromParams = parseInt(req.params.id, 10);
 
     if (userIdFromToken !== userIdFromParams) {
+      await client.query('ROLLBACK');
       return res.status(403).json({
         message: "Prohibido: No tienes permiso para eliminar este usuario.",
       });
     }
 
-    const usuarioEliminado = await usuarioModel.deleteById(userIdFromParams);
+    const usuarioEliminado = await usuarioModel.deleteById(userIdFromParams, client);
 
     if (!usuarioEliminado) {
+      await client.query('ROLLBACK');
       return res.status(404).json({
         message: "Usuario no encontrado",
       });
     }
+
+    await client.query('COMMIT');
 
     res.status(200).json({
       message: "Usuario eliminado exitosamente",
       data: usuarioEliminado,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al eliminar el usuario",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -65,10 +96,16 @@ export const updateUsuario = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const userIdFromToken = req.user.id;
     const userIdFromParams = parseInt(req.params.id, 10);
     if (userIdFromToken !== userIdFromParams) {
+      await client.query('ROLLBACK');
       return res.status(403).json({
         message: "Prohibido: No tienes permiso para actualizar este usuario.",
       });
@@ -77,23 +114,33 @@ export const updateUsuario = async (req, res) => {
     const body = req.body;
     const usuarioActualizado = await usuarioModel.updateById(
       userIdFromParams,
-      body
+      body,
+      client
     );
 
     if (!usuarioActualizado) {
+      await client.query('ROLLBACK');
       return res.status(404).json({
         message: "Usuario no encontrado",
       });
     }
+    await client.query('COMMIT');
     res.status(200).json({
       message: "Usuario actualizado correctamente",
       data: usuarioActualizado,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al actualizar el usuario",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -137,11 +184,17 @@ export const changePassword = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const { id } = req.user;
     const { newPassword } = req.body;
 
     if (!newPassword || newPassword.length < 6) {
+      await client.query('ROLLBACK');
       return res
         .status(400)
         .json({
@@ -152,16 +205,24 @@ export const changePassword = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const newPasswordHash = await bcrypt.hash(newPassword, salt);
 
-    await usuarioModel.updatePasswordById(id, newPasswordHash);
+    await usuarioModel.updatePasswordById(id, newPasswordHash, client);
 
+    await client.query('COMMIT');
     res.status(200).json({ message: "Contraseña actualizada correctamente." });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res
       .status(500)
       .json({
         message: "Error al actualizar la contraseña",
         error: error.message,
       });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 

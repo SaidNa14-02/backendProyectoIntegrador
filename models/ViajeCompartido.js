@@ -1,6 +1,6 @@
 import pool from "../src/db.js";
 class ViajeCompartido {
-  async createViajeCompartido(viaje) {
+  async createViajeCompartido(viaje, client = pool) {
     try {
       const query = {
         text: "INSERT INTO viajecompartido (origen, destino, origen_lat, origen_lon, destino_lat, destino_lon, fecha_hora_salida, asientos_ofrecidos, id_conductor) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
@@ -16,7 +16,7 @@ class ViajeCompartido {
           viaje.id_conductor,
         ],
       };
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("Error al crear el viaje compartido: ", error);
@@ -85,13 +85,13 @@ class ViajeCompartido {
     }
   }
 
-  async deleteViajeCompartidoById(id) {
+  async deleteViajeCompartidoById(id, conductorId, client = pool) {
     try {
       const query = {
-        text: `DELETE FROM viajecompartido WHERE id = $1 RETURNING *`,
-        values: [id],
+        text: `DELETE FROM viajecompartido WHERE id = $1 AND id_conductor = $2 RETURNING *`,
+        values: [id, conductorId],
       };
-      const result = await pool.query(query);
+      const result = await client.query(query);
       if (result.rows.length === 0) {
         return null; // No se encontró el viaje compartido
       }
@@ -102,7 +102,7 @@ class ViajeCompartido {
     }
   }
 
-  async updateViajeById(id, updatedBody, conductorId) {
+  async updateViajeById(id, updatedBody, conductorId, client = pool) {
     try {
       const updatableFields = [
         "origen",
@@ -124,7 +124,7 @@ class ViajeCompartido {
       }
 
       const setClause = fieldsToUpdate
-        .map((field, index) => `"${field}" = $${index + 1}`)
+        .map((field, index) => `"${field}" = ${index + 1}`)
         .join(", ");
 
       const values = fieldsToUpdate.map((field) => updatedBody[field]);
@@ -135,11 +135,11 @@ class ViajeCompartido {
       const conductorIdIndex = values.length;
 
       const query = {
-        text: `UPDATE viajecompartido SET ${setClause} WHERE id = $${idIndex} AND id_conductor = $${conductorIdIndex} RETURNING *`,
+        text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idIndex} AND id_conductor = ${conductorIdIndex} RETURNING *`,
         values: values,
       };
 
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("No se ha podido actualizar el elemento", error);
@@ -147,13 +147,13 @@ class ViajeCompartido {
     }
   }
 
-  async updateStatus(viajeId, nuevoEstado) {
+  async updateStatus(viajeId, nuevoEstado, client = pool) {
     try {
         const query = {
             text: `UPDATE viajecompartido SET estado = $1 WHERE id = $2 RETURNING *`,
             values: [nuevoEstado, viajeId]
         };
-        const result = await pool.query(query);
+        const result = await client.query(query);
         
         return result.rows[0]; 
     } catch (error) {

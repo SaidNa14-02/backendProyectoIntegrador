@@ -13,7 +13,12 @@ export const createViajeCompartido = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const id_conductor = req.user.id;
     const datosViaje = {
       ...req.body,
@@ -27,6 +32,7 @@ export const createViajeCompartido = async (req, res) => {
         datosViaje.origen_lat = coords.lat;
         datosViaje.origen_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el origen." });
       }
     }
@@ -38,20 +44,31 @@ export const createViajeCompartido = async (req, res) => {
         datosViaje.destino_lat = coords.lat;
         datosViaje.destino_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el destino." });
       }
     }
 
-    const newViaje = await viajeCompartidoModel.createViajeCompartido(datosViaje);
+    const newViaje = await viajeCompartidoModel.createViajeCompartido(datosViaje, client);
+    
+    await client.query('COMMIT');
+
     res.status(201).json({
       message: "Viaje compartido creado con éxito",
       data: newViaje,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al crear el viaje compartido",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -116,30 +133,46 @@ export const getViajeCompartidoById = async (req, res) => {
   };
 
 export const deleteViajeCompartido = async (req, res) => {
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const viajeId = parseInt(req.params.id);
     const conductorIdDelToken = req.user.id;
 
     const viajeEliminado = await viajeCompartidoModel.deleteViajeCompartidoById(
       viajeId,
-      conductorIdDelToken
+      conductorIdDelToken, // Pass conductorIdDelToken
+      client
     );
 
     if (!viajeEliminado) {
+      await client.query('ROLLBACK');
       return res.status(404).json({
         message: "Viaje no encontrado o no tienes permiso para eliminarlo.",
       });
     }
     
+    await client.query('COMMIT');
+
     res.status(200).json({
       message: "Viaje compartido eliminado con éxito",
       data: viajeEliminado,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al eliminar el viaje compartido",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -151,7 +184,12 @@ export const updateViajeCompartido = async (req, res) => {
 
   const viajeId = parseInt(req.params.id);
   const conductorIdDelToken = req.user.id;
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     // Geocodificar origen si se está actualizando y no se proporcionan coordenadas
     if (req.body.origen && (req.body.origen_lat == null || req.body.origen_lon == null)) {
       const coords = await geocodeAddress(req.body.origen);
@@ -159,6 +197,7 @@ export const updateViajeCompartido = async (req, res) => {
         req.body.origen_lat = coords.lat;
         req.body.origen_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el origen para la actualización." });
       }
     }
@@ -170,6 +209,7 @@ export const updateViajeCompartido = async (req, res) => {
         req.body.destino_lat = coords.lat;
         req.body.destino_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el destino para la actualización." });
       }
     }
@@ -177,28 +217,39 @@ export const updateViajeCompartido = async (req, res) => {
     const viajeActualizado = await viajeCompartidoModel.updateViajeById(
       viajeId,
       req.body,
-      conductorIdDelToken
+      conductorIdDelToken,
+      client
     );
 
     if (req.body.estado) {
-      await viajeCompartidoModel.updateStatus(viajeId, req.body.estado);
+      await viajeCompartidoModel.updateStatus(viajeId, req.body.estado, client);
     }
 
     if (!viajeActualizado) {
+      await client.query('ROLLBACK');
       return res.status(404).json({
         message: "Viaje no encontrado, no tienes permiso para modificarlo, o no se enviaron datos válidos.",
       });
     }
+
+    await client.query('COMMIT');
 
     res.status(200).json({
       message: "Viaje compartido actualizado con éxito",
       data: viajeActualizado,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al actualizar el viaje compartido",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 

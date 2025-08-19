@@ -73,26 +73,41 @@ export const getRutas = async (req, res) => {
 };
 
 export const deleteRuta = async (req, res) => {
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const rutaId = parseInt(req.params.id);
     const creadorIdDelToken = req.user.id;
 
-    const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken);
+    const rutaEliminada = await rutaModel.deleteById(rutaId, creadorIdDelToken, client);
     if (!rutaEliminada) {
+      await client.query('ROLLBACK');
       return res.status(404).json({
         message: "Ruta no encontrada o no eres el creador de esta ruta.",
       });
     }
+
+    await client.query('COMMIT');
 
     res.status(200).json({
       message: "Ruta eliminada exitosamente",
       data: rutaEliminada,
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al eliminar la ruta",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 
@@ -102,7 +117,12 @@ export const updateRuta = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   
+  let client;
   try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query('SET auditoria.usuario_id = $1', [req.user.id]);
+
     const rutaId = parseInt(req.params.id);
     const body = req.body;
     const creadorIdDelToken = req.user.id;
@@ -114,6 +134,7 @@ export const updateRuta = async (req, res) => {
         body.punto_inicio_lat = coords.lat;
         body.punto_inicio_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el punto de inicio para la actualización." });
       }
     }
@@ -125,27 +146,38 @@ export const updateRuta = async (req, res) => {
         body.punto_destino_lat = coords.lat;
         body.punto_destino_lon = coords.lon;
       } else {
+        await client.query('ROLLBACK');
         return res.status(400).json({ message: "No se pudo geocodificar el punto de destino para la actualización." });
       }
     }
 
-    const rutaActualizada = await rutaModel.updateById(rutaId, body, creadorIdDelToken);
+    const rutaActualizada = await rutaModel.updateById(rutaId, body, creadorIdDelToken, client);
 
     if (!rutaActualizada) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ 
         message: "Ruta no encontrada, no tienes permiso para modificarla, o no se enviaron datos para actualizar."
       });
     }
+
+    await client.query('COMMIT');
 
     res.status(200).json({ 
         message: "Ruta actualizada correctamente",
         data: rutaActualizada 
     });
   } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
     res.status(500).json({
       message: "Error al actualizar la ruta",
       error: error.message,
     });
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 };
 

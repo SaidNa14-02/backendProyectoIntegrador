@@ -1,7 +1,7 @@
 import pool from "../src/db.js";
 
 class Ruta {
-  async create(nuevaRuta) {
+  async create(nuevaRuta, client = pool) {
     try {
       const query = {
         text: `INSERT INTO ruta (titulo, descripcion, punto_inicio, punto_destino, punto_inicio_lat, punto_inicio_lon, punto_destino_lat, punto_destino_lon, tipo_transporte, creador_id) 
@@ -21,7 +21,7 @@ class Ruta {
         ],
       };
 
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("Error al crear ruta:", error);
@@ -74,7 +74,7 @@ class Ruta {
     }
   }
 
-  async updateById(id, updatedBody, creadorId) {
+  async updateById(id, updatedBody, creadorId, client = pool) {
     try {
       const updatableFields = [
         "titulo",
@@ -115,7 +115,7 @@ class Ruta {
         values: values,
       };
 
-      const result = await pool.query(query);
+      const result = await client.query(query);
 
       // Si la consulta no devuelve nada, es porque el id no existía o el creador_id no coincidía.
       return result.rows[0];
@@ -127,13 +127,13 @@ class Ruta {
       throw error;
     }
   }
-  async deleteById(rutaId, creadorId) {
+  async deleteById(rutaId, creadorId, client = pool) {
     try {
       const query = {
         text: "DELETE FROM ruta WHERE id = $1 AND creador_id = $2 RETURNING *",
         values: [rutaId, creadorId],
       };
-      const result = await pool.query(query);
+      const result = await client.query(query);
       return result.rows[0];
     } catch (error) {
       console.error("No se ha podido eliminar el elemento", error);
