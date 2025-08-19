@@ -11,7 +11,7 @@ export const createRutaValidate = [
         .notEmpty().withMessage('El punto de destino es obligatorio'),
     body('tipo_transporte')
         .notEmpty().withMessage('El tipo de transporte es obligatorio')
-        .isIn(['A pie', 'Transporte publico', 'Auto']).withMessage('Tipo de transporte no válido'),
+        .isIn(['BUS', 'TROLE', 'BICI', 'PIE', 'AUTO', 'OTRO']).withMessage('Tipo de transporte no válido'),
 ];
 
 export const updateRutaValidate = [
@@ -30,5 +30,5 @@ export const updateRutaValidate = [
     body('tipo_transporte')
         .optional()
         .notEmpty().withMessage('El tipo de transporte no puede estar vacío')
-        .isIn(['A pie', 'Transporte publico', 'Auto']).withMessage('Tipo de transporte no válido'),
+        .isIn(['BUS', 'TROLE', 'BICI', 'PIE', 'AUTO', 'OTRO']).withMessage('Tipo de transporte no válido'),
 ];
