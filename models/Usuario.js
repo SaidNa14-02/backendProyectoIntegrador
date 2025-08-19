@@ -77,8 +77,9 @@ async updateById(id, updatedBody, client = pool) {
 
         const values = fieldsToUpdate.map(field => updatedBody[field]);
         
+        const idPlaceholderIndex = values.length + 1;
+
         values.push(id);
-        const idIndex = values.length;
 
         const query = {
             text: `UPDATE usuario SET ${setClause} WHERE id = ${idIndex} RETURNING *`,

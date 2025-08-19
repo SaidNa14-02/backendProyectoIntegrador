@@ -100,18 +100,16 @@ class Ruta {
         .map((field, index) => `"${field}" = ${index + 1}`)
         .join(", ");
 
-      // Prepara los valores para los placeholders
       const values = fieldsToUpdate.map((field) => updatedBody[field]);
 
-      // Añade id y creadorId al final del array de valores para usarlos en el WHERE
+      const idPlaceholderIndex = values.length + 1;
+      const creadorIdPlaceholderIndex = values.length + 2;
+
       values.push(id);
-      const idIndex = values.length;
       values.push(creadorId);
-      const creadorIdIndex = values.length;
 
       const query = {
-        // La cláusula WHERE ahora comprueba ambos IDs de forma segura
-        text: `UPDATE ruta SET ${setClause} WHERE id = ${idIndex} AND creador_id = ${creadorIdIndex} RETURNING *`,
+        text: `UPDATE ruta SET ${setClause} WHERE id = ${idPlaceholderIndex} AND creador_id = ${creadorIdPlaceholderIndex} RETURNING *`,
         values: values,
       };
 

@@ -129,10 +129,11 @@ class ViajeCompartido {
 
       const values = fieldsToUpdate.map((field) => updatedBody[field]);
 
+      const idPlaceholderIndex = values.length + 1;
+      const conductorIdPlaceholderIndex = values.length + 2;
+
       values.push(id);
-      const idIndex = values.length;
       values.push(conductorId);
-      const conductorIdIndex = values.length;
 
       const query = {
         text: `UPDATE viajecompartido SET ${setClause} WHERE id = ${idIndex} AND id_conductor = ${conductorIdIndex} RETURNING *`,
